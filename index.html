@@ -6123,7 +6123,33 @@ const initContactForm = () => {
     }, 5000);
   };
 
-  /* ---- Envío con Formspree (sin abrir cliente de correo) ---- */
+  /* ---- Toast de error ---- */
+  const showToastError = message => {
+    const toast = $('#form-success');
+    if (!toast) return;
+
+    toast.innerHTML = `
+      <span class="toast-icon">❌</span>
+      <div class="toast-body">
+        <strong>Error al enviar</strong>
+        <p>${message}</p>
+      </div>
+      <div class="toast-progress"></div>
+    `;
+
+    toast.classList.remove('toast-hide');
+    toast.classList.add('toast-show');
+
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => {
+        toast.classList.remove('toast-show', 'toast-hide');
+        toast.innerHTML = '';
+      }, 400);
+    }, 5000);
+  };
+
+  /* ---- Envío con Formspree ---- */
   on(form, 'submit', async e => {
     e.preventDefault();
 
@@ -6198,29 +6224,17 @@ const initContactForm = () => {
         });
         showToast();
       } else {
-        // Formspree devolvió error — fallback a mailto
+        // Formspree devolvió error
         const data = await response.json().catch(() => ({}));
-        console.warn('Formspree error:', data);
-        throw new Error('formspree_error');
+        console.error('Error al enviar formulario:', data);
+        showToastError('Error al enviar. Por favor intenta nuevamente o contáctanos por WhatsApp.');
+        return;
       }
 
     } catch (err) {
-      /* Fallback: si Formspree falla, abrir cliente de correo */
-      console.warn('Fallback a mailto:', err.message);
-      const nombre   = form.elements['nombre']?.value.trim()   || '';
-      const empresa  = form.elements['empresa']?.value.trim()  || '';
-      const correo   = form.elements['correo']?.value.trim()   || '';
-      const telefono = form.elements['telefono']?.value.trim() || '';
-      const tipo     = form.elements['tipo-proyecto']?.value   || '';
-      const presup   = form.elements['presupuesto']?.value     || '';
-      const mensaje  = form.elements['mensaje']?.value.trim()  || '';
-      const subject  = encodeURIComponent(`Nueva cotización — ${nombre}`);
-      const body     = encodeURIComponent(
-        `Nombre: ${nombre}\nEmpresa: ${empresa}\nCorreo: ${correo}\n` +
-        `Teléfono: ${telefono}\nTipo: ${tipo}\nPresupuesto: ${presup}\n\n${mensaje}`
-      );
-      window.open(`mailto:rgwebsolutionss@gmail.com?subject=${subject}&body=${body}`, '_blank');
-      showToast();
+      // Error de conexión
+      console.error('Error de envío:', err.message);
+      showToastError('Error de conexión. Por favor verifica tu internet e intenta nuevamente.');
     } finally {
       submitBtn.disabled = false;
       if (submitText)    submitText.hidden = false;

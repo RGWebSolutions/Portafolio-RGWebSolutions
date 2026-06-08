@@ -5471,13 +5471,14 @@ html {
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="tipo-proyecto" class="form-label">Tipo de proyecto <span class="required" aria-hidden="true">*</span></label>
-                  <select id="tipo-proyecto" name="tipo-proyecto" class="form-input form-select" required>
+                  <label for="servicio" class="form-label">Servicio <span class="required" aria-hidden="true">*</span></label>
+                  <select id="servicio" name="servicio" class="form-input form-select" required>
                     <option value="" disabled selected>Selecciona una opción</option>
+                    <option value="pagina-web">Página Web Básica</option>
+                    <option value="tienda-online">Tienda Online</option>
                     <option value="landing">Landing Page</option>
                     <option value="corporativo">Sitio Corporativo</option>
                     <option value="portafolio">Portafolio Profesional</option>
-                    <option value="ecommerce">Tienda en línea</option>
                     <option value="mantenimiento">Mantenimiento / Actualización</option>
                     <option value="otro">Otro</option>
                   </select>
@@ -6046,9 +6047,9 @@ const initContactForm = () => {
       pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
       label: 'El correo electrónico'
     },
-    'tipo-proyecto': {
+    servicio: {
       required: true,
-      label: 'El tipo de proyecto'
+      label: 'El servicio'
     },
     mensaje: {
       required: true,
@@ -6177,42 +6178,40 @@ const initContactForm = () => {
     if (submitLoading) submitLoading.hidden = false;
 
     try {
-      // Recopilar datos
-      const nombre   = form.elements['nombre']?.value.trim()         || '';
-      const empresa  = form.elements['empresa']?.value.trim()        || 'No especificada';
-      const correo   = form.elements['correo']?.value.trim()         || '';
-      const telefono = form.elements['telefono']?.value.trim()       || 'No especificado';
-      const tipo     = form.elements['tipo-proyecto']?.value         || '';
-      const presup   = form.elements['presupuesto']?.value           || 'No especificado';
-      const mensaje  = form.elements['mensaje']?.value.trim()        || '';
+// Recopilar datos
+       const nombre   = form.elements['nombre']?.value.trim()         || '';
+       const empresa  = form.elements['empresa']?.value.trim()        || 'No especificada';
+       const correo   = form.elements['correo']?.value.trim()         || '';
+       const telefono = form.elements['telefono']?.value.trim()       || 'No especificado';
+       const servicio = form.elements['servicio']?.value              || '';
+       const presup   = form.elements['presupuesto']?.value           || 'No especificado';
+       const mensaje  = form.elements['mensaje']?.value.trim()        || '';
 
-      /* ----------------------------------------------------------------
-         Envío automático vía Formspree
-         Endpoint gratuito: hasta 50 envíos/mes sin cuenta
-         Para activar: visita https://formspree.io/f/xqaqokgr
-         y confirma tu correo rgwebsolutionss@gmail.com
-         ---------------------------------------------------------------- */
-      const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xqaqokgr';
+       /* ----------------------------------------------------------------
+          Envío automático vía Formspree
+          Endpoint: https://formspree.io/f/xaqzonvv
+          ---------------------------------------------------------------- */
+       const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xaqzonvv';
 
-      const response = await fetch(FORMSPREE_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          _subject: `Nueva cotización — ${nombre} | ${empresa}`,
-          nombre,
-          empresa,
-          'correo-cliente': correo,
-          telefono,
-          'tipo-proyecto': tipo,
-          presupuesto: presup,
-          mensaje,
-          _replyto: correo,
-          _template: 'table'
-        })
-      });
+       const response = await fetch(FORMSPREE_ENDPOINT, {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+           'Accept': 'application/json'
+         },
+         body: JSON.stringify({
+           _subject: `Nueva solicitud — ${nombre} | ${empresa}`,
+           nombre,
+           empresa,
+           'correo-cliente': correo,
+           telefono,
+           servicio,
+           presupuesto: presup,
+           mensaje,
+           _replyto: correo,
+           _template: 'table'
+         })
+       });
 
       if (response.ok) {
         // ✅ Enviado correctamente

@@ -513,6 +513,7 @@ input, textarea, select {
   position: absolute;
   inset: 0;
   z-index: 0;
+  pointer-events: none;
 }
 
 .hero-grid {
@@ -524,6 +525,7 @@ input, textarea, select {
   background-size: 60px 60px;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
+  pointer-events: none;
 }
 
 .hero-orb {
@@ -531,6 +533,7 @@ input, textarea, select {
   border-radius: 50%;
   filter: blur(80px);
   opacity: 0.15;
+  pointer-events: none;
 }
 
 .hero-orb-1 {
@@ -2028,6 +2031,7 @@ input, textarea, select {
   position: absolute;
   inset: 0;
   z-index: 0;
+  pointer-events: none;
 }
 
 .cta-grid {
@@ -2038,12 +2042,14 @@ input, textarea, select {
     linear-gradient(90deg, var(--color-border-2) 1px, transparent 1px);
   background-size: 48px 48px;
   opacity: 0.5;
+  pointer-events: none;
 }
 
 .cta-orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(60px);
+  pointer-events: none;
 }
 
 .cta-orb-1 {
@@ -6571,8 +6577,10 @@ const fixMobileMenuResize = () => {
             btn.classList.remove('open');
             btn.setAttribute('aria-expanded', 'false');
           }
-          document.body.style.overflow = '';
         }
+        /* Siempre liberar el overflow al pasar a desktop */
+        document.body.style.overflow = '';
+        document.body.style.overflowX = 'hidden';
       }
     }, 150);
   }, { passive: true });
@@ -6751,7 +6759,8 @@ const preventDoubleTapZoom = () => {
 
 /* ---- Fix: Overscroll behavior (pull to refresh en Chrome mobile) ---- */
 const fixOverscroll = () => {
-  document.body.style.overscrollBehaviorY = 'none';
+  /* ELIMINADO: overscrollBehaviorY='none' bloqueaba el scroll del mouse
+     en áreas sin contenido scrollable propio (Chrome/Edge). */
 };
 
 /* ---- Inicializar todos los patches ---- */

@@ -3853,6 +3853,96 @@ html {
 }
 
 
+
+/* ============================================================
+   FORM TOAST — Notificación de éxito flotante
+   ============================================================ */
+.form-toast {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 9999;
+  background: linear-gradient(135deg, #0d2a1a 0%, #0f3320 100%);
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  border-radius: 14px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.55), 0 0 24px rgba(34,197,94,0.12);
+  min-width: 300px;
+  max-width: 90vw;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  opacity: 0;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+}
+
+.form-toast.toast-show {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.form-toast.toast-hide {
+  opacity: 0;
+  transform: translateX(-50%) translateY(12px);
+}
+
+.toast-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  animation: toast-pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes toast-pop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.toast-body strong {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #22c55e;
+  margin-bottom: 0.2rem;
+}
+
+.toast-body p {
+  font-size: 0.8rem;
+  color: rgba(203, 213, 225, 0.75);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #22c55e, #38BDF8);
+  border-radius: 0 0 14px 14px;
+  width: 100%;
+  transform-origin: left;
+  animation: toast-timer 5s linear forwards;
+}
+
+@keyframes toast-timer {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+@media (max-width: 479px) {
+  .form-toast {
+    bottom: 1rem;
+    min-width: 260px;
+    padding: 0.85rem 1.1rem;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3974,7 +4064,7 @@ html {
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M7 1l1.545 3.13L12 4.635l-2.5 2.435.59 3.44L7 8.93 3.91 10.51l.59-3.44L2 4.635l3.455-.505L7 1z" fill="#22C55E"/>
               </svg>
-              <span>+20 proyectos entregados</span>
+              <span>+5 proyectos entregados</span>
             </div>
             <div class="trust-separator" aria-hidden="true">·</div>
             <div class="trust-item">
@@ -4117,7 +4207,7 @@ html {
         <div class="stat-item reveal">
           <div class="stat-icon" aria-hidden="true">✅</div>
           <div class="stat-info">
-            <span class="stat-number" data-target="50" data-suffix="+">0</span>
+            <span class="stat-number" data-target="5" data-suffix="+">0</span>
             <span class="stat-label">Proyectos Entregados</span>
           </div>
         </div>
@@ -4167,7 +4257,7 @@ html {
                 <div class="about-metric-card about-metric-3">
                   <div class="metric-icon">📅</div>
                   <div>
-                    <div class="metric-val">2022</div>
+                    <div class="metric-val">2026</div>
                     <div class="metric-lbl">Fundada</div>
                   </div>
                 </div>
@@ -5422,13 +5512,8 @@ html {
                   <path d="M3 9h12M10 4l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
               </button>
-              <div class="form-success" id="form-success" hidden role="alert">
-                <div class="success-icon" aria-hidden="true">✅</div>
-                <div>
-                  <strong>¡Solicitud enviada correctamente!</strong>
-                  <p>Nos pondremos en contacto contigo en menos de 24 horas.</p>
-                </div>
-              </div>
+              <!-- Toast de éxito — aparece por JS al enviar -->
+              <div class="form-toast" id="form-success" aria-live="polite"></div>
             </form>
           </div>
         </div>
@@ -5942,11 +6027,10 @@ const initFAQ = () => {
    10. VALIDACIÓN Y ENVÍO DEL FORMULARIO
    ============================================================ */
 const initContactForm = () => {
-  const form    = $('#contact-form');
+  const form        = $('#contact-form');
   if (!form) return;
 
   const submitBtn     = $('#form-submit');
-  const successMsg    = $('#form-success');
   const submitText    = $('.submit-text', submitBtn);
   const submitLoading = $('.submit-loading', submitBtn);
 
@@ -5973,26 +6057,16 @@ const initContactForm = () => {
     }
   };
 
-  /* ---- Función de validación de campo ---- */
   const validateField = (name, value) => {
     const rule = rules[name];
     if (!rule) return null;
-
     const trimmed = String(value).trim();
-
-    if (rule.required && !trimmed) {
-      return `${rule.label} es obligatorio.`;
-    }
-    if (rule.minLength && trimmed.length < rule.minLength) {
-      return `${rule.label} debe tener al menos ${rule.minLength} caracteres.`;
-    }
-    if (rule.pattern && !rule.pattern.test(trimmed)) {
-      return `Por favor ingresa un correo electrónico válido.`;
-    }
+    if (rule.required && !trimmed) return `${rule.label} es obligatorio.`;
+    if (rule.minLength && trimmed.length < rule.minLength) return `${rule.label} debe tener al menos ${rule.minLength} caracteres.`;
+    if (rule.pattern && !rule.pattern.test(trimmed)) return 'Por favor ingresa un correo electrónico válido.';
     return null;
   };
 
-  /* ---- Mostrar error en campo ---- */
   const showError = (input, message) => {
     input.classList.add('error');
     input.classList.remove('success');
@@ -6000,7 +6074,6 @@ const initContactForm = () => {
     if (errorEl) errorEl.textContent = message;
   };
 
-  /* ---- Mostrar éxito en campo ---- */
   const showSuccess = input => {
     input.classList.remove('error');
     input.classList.add('success');
@@ -6008,18 +6081,13 @@ const initContactForm = () => {
     if (errorEl) errorEl.textContent = '';
   };
 
-  /* ---- Validación en tiempo real (al salir del campo) ---- */
+  /* ---- Validación en tiempo real ---- */
   $$('[name]', form).forEach(input => {
     on(input, 'blur', () => {
       const error = validateField(input.name, input.value);
-      if (error) {
-        showError(input, error);
-      } else if (input.value.trim()) {
-        showSuccess(input);
-      }
+      if (error) showError(input, error);
+      else if (input.value.trim()) showSuccess(input);
     });
-
-    // Limpiar error al escribir
     on(input, 'input', () => {
       if (input.classList.contains('error')) {
         const error = validateField(input.name, input.value);
@@ -6028,27 +6096,48 @@ const initContactForm = () => {
     });
   });
 
-  /* ---- Submit ---- */
+  /* ---- Toast de éxito ---- */
+  const showToast = () => {
+    const toast = $('#form-success');
+    if (!toast) return;
+
+    toast.innerHTML = `
+      <span class="toast-icon">✅</span>
+      <div class="toast-body">
+        <strong>¡Solicitud enviada correctamente!</strong>
+        <p>Te responderemos en menos de 24 horas.</p>
+      </div>
+      <div class="toast-progress"></div>
+    `;
+
+    toast.classList.remove('toast-hide');
+    toast.classList.add('toast-show');
+
+    // Auto-ocultar después de 5 segundos
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => {
+        toast.classList.remove('toast-show', 'toast-hide');
+        toast.innerHTML = '';
+      }, 400);
+    }, 5000);
+  };
+
+  /* ---- Envío con Formspree (sin abrir cliente de correo) ---- */
   on(form, 'submit', async e => {
     e.preventDefault();
 
+    // Validar todos los campos requeridos
     let isValid = true;
-    const requiredFields = Object.keys(rules);
-
-    requiredFields.forEach(name => {
+    Object.keys(rules).forEach(name => {
       const input = form.elements[name];
       if (!input) return;
       const error = validateField(name, input.value);
-      if (error) {
-        showError(input, error);
-        isValid = false;
-      } else {
-        showSuccess(input);
-      }
+      if (error) { showError(input, error); isValid = false; }
+      else showSuccess(input);
     });
 
     if (!isValid) {
-      // Hacer scroll al primer error
       const firstError = form.querySelector('.form-input.error');
       if (firstError) {
         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -6057,58 +6146,81 @@ const initContactForm = () => {
       return;
     }
 
-    /* ---- Envío por mailto al correo de la marca ---- */
     submitBtn.disabled = true;
     if (submitText)    submitText.hidden = true;
     if (submitLoading) submitLoading.hidden = false;
 
     try {
-      // Recopilar datos del formulario
-      const nombre   = form.elements['nombre']?.value.trim() || '';
-      const empresa  = form.elements['empresa']?.value.trim() || '';
-      const correo   = form.elements['correo']?.value.trim() || '';
-      const telefono = form.elements['telefono']?.value.trim() || '';
-      const tipo     = form.elements['tipo-proyecto']?.value || '';
-      const presup   = form.elements['presupuesto']?.value || '';
-      const mensaje  = form.elements['mensaje']?.value.trim() || '';
+      // Recopilar datos
+      const nombre   = form.elements['nombre']?.value.trim()         || '';
+      const empresa  = form.elements['empresa']?.value.trim()        || 'No especificada';
+      const correo   = form.elements['correo']?.value.trim()         || '';
+      const telefono = form.elements['telefono']?.value.trim()       || 'No especificado';
+      const tipo     = form.elements['tipo-proyecto']?.value         || '';
+      const presup   = form.elements['presupuesto']?.value           || 'No especificado';
+      const mensaje  = form.elements['mensaje']?.value.trim()        || '';
 
-      const emailDest = form.dataset.email || 'rgwebsolutionss@gmail.com';
+      /* ----------------------------------------------------------------
+         Envío automático vía Formspree
+         Endpoint gratuito: hasta 50 envíos/mes sin cuenta
+         Para activar: visita https://formspree.io/f/xqaqokgr
+         y confirma tu correo rgwebsolutionss@gmail.com
+         ---------------------------------------------------------------- */
+      const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xqaqokgr';
 
-      const subject = encodeURIComponent(`Nueva solicitud de cotización — ${nombre}${empresa ? ' | ' + empresa : ''}`);
-      const body = encodeURIComponent(
-        `Nombre: ${nombre}\n` +
-        `Empresa: ${empresa || 'No especificado'}\n` +
-        `Correo: ${correo}\n` +
-        `Teléfono: ${telefono || 'No especificado'}\n` +
-        `Tipo de proyecto: ${tipo}\n` +
-        `Presupuesto estimado: ${presup || 'No especificado'}\n\n` +
-        `Mensaje:\n${mensaje}\n\n` +
-        `---\nEnviado desde el formulario de RGWebSolutions`
-      );
-
-      const mailtoLink = `mailto:${emailDest}?subject=${subject}&body=${body}`;
-
-      // Pequeña pausa para mostrar animación
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      // Abrir cliente de correo
-      window.location.href = mailtoLink;
-
-      // Éxito visual
-      form.reset();
-      $$('[name]', form).forEach(input => {
-        input.classList.remove('error', 'success');
-        const errorEl = input.closest('.form-group')?.querySelector('.form-error');
-        if (errorEl) errorEl.textContent = '';
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          _subject: `Nueva cotización — ${nombre} | ${empresa}`,
+          nombre,
+          empresa,
+          'correo-cliente': correo,
+          telefono,
+          'tipo-proyecto': tipo,
+          presupuesto: presup,
+          mensaje,
+          _replyto: correo,
+          _template: 'table'
+        })
       });
 
-      if (successMsg) {
-        successMsg.hidden = false;
-        successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (response.ok) {
+        // ✅ Enviado correctamente
+        form.reset();
+        $$('[name]', form).forEach(input => {
+          input.classList.remove('error', 'success');
+          const errorEl = input.closest('.form-group')?.querySelector('.form-error');
+          if (errorEl) errorEl.textContent = '';
+        });
+        showToast();
+      } else {
+        // Formspree devolvió error — fallback a mailto
+        const data = await response.json().catch(() => ({}));
+        console.warn('Formspree error:', data);
+        throw new Error('formspree_error');
       }
 
     } catch (err) {
-      console.error('Error al abrir cliente de correo:', err);
+      /* Fallback: si Formspree falla, abrir cliente de correo */
+      console.warn('Fallback a mailto:', err.message);
+      const nombre   = form.elements['nombre']?.value.trim()   || '';
+      const empresa  = form.elements['empresa']?.value.trim()  || '';
+      const correo   = form.elements['correo']?.value.trim()   || '';
+      const telefono = form.elements['telefono']?.value.trim() || '';
+      const tipo     = form.elements['tipo-proyecto']?.value   || '';
+      const presup   = form.elements['presupuesto']?.value     || '';
+      const mensaje  = form.elements['mensaje']?.value.trim()  || '';
+      const subject  = encodeURIComponent(`Nueva cotización — ${nombre}`);
+      const body     = encodeURIComponent(
+        `Nombre: ${nombre}\nEmpresa: ${empresa}\nCorreo: ${correo}\n` +
+        `Teléfono: ${telefono}\nTipo: ${tipo}\nPresupuesto: ${presup}\n\n${mensaje}`
+      );
+      window.open(`mailto:rgwebsolutionss@gmail.com?subject=${subject}&body=${body}`, '_blank');
+      showToast();
     } finally {
       submitBtn.disabled = false;
       if (submitText)    submitText.hidden = false;
@@ -6117,9 +6229,7 @@ const initContactForm = () => {
   });
 };
 
-/* ============================================================
-   11. BOTÓN VOLVER ARRIBA
-   ============================================================ */
+
 const initBackToTop = () => {
   const btn = $('#back-to-top');
   if (!btn) return;

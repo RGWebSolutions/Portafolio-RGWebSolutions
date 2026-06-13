@@ -1992,15 +1992,29 @@ input, textarea, select {
   font-size: 2.2rem;
   color: var(--color-text-dim);
   cursor: pointer;
-  transition: all var(--dur-base);
+  transition: all 0.15s ease;
   line-height: 1;
 }
 
-.rating-stars input:checked ~ .star-label,
-.star-label:hover,
-.star-label:hover ~ .star-label {
+.rating-stars .star-label.active,
+.rating-stars .star-label.hover-preview {
   color: var(--color-warning);
-  transform: scale(1.1);
+}
+
+.rating-stars .star-label.active {
+  transform: scale(1.05);
+}
+
+.rating-stars .star-label.hover-preview {
+  transform: scale(1.12);
+}
+
+.rating-stars.error .star-label {
+  color: var(--color-danger);
+}
+
+.rating-stars.success .star-label {
+  color: var(--color-warning);
 }
 
 /* ---- Character Counter ---- */
@@ -6658,9 +6672,23 @@ const initTestimonialForm = () => {
   };
 
   /* ---- Validación en tiempo real ---- */
+  const starLabels = $$('.star-label', ratingGroup);
+  
+  const updateStars = (count) => {
+    starLabels.forEach((label, index) => {
+      if (index < count) label.classList.add('active');
+      else label.classList.remove('active');
+    });
+    
+    if (count) ratingGroup.classList.add('active');
+    else ratingGroup.classList.remove('active');
+  };
+
   $$('[name]', form).forEach(input => {
     if (input.name === 'rating') {
       on(input, 'change', () => {
+        const val = parseInt(input.value, 10);
+        updateStars(val);
         if (getRatingValue()) showSuccess(ratingGroup);
       });
       return;
@@ -6679,6 +6707,25 @@ const initTestimonialForm = () => {
       }
     });
   });
+
+  /* ---- Hover visual ---- */
+  starLabels.forEach(label => {
+    on(label, 'mouseenter', () => {
+      const value = parseInt(label.getAttribute('aria-label'), 10);
+      starLabels.forEach((lbl, index) => {
+        if (value - index > 0) lbl.classList.add('hover-preview');
+        else lbl.classList.remove('hover-preview');
+      });
+    });
+  });
+
+  on(ratingGroup, 'mouseleave', () => {
+    starLabels.forEach(lbl => lbl.classList.remove('hover-preview'));
+  });
+
+  /* ---- Inicialización visual de estrellas por defecto ---- */
+  const initialRating = parseInt(form.querySelector('input[name="rating"]:checked')?.value || '0', 10);
+  if (initialRating) updateStars(initialRating);
 
   /* ---- Contador de caracteres ---- */
   const textarea = $('#tst-message');

@@ -1951,6 +1951,185 @@ input, textarea, select {
 }
 
 /* ============================================================
+   16.5 SHARE TESTIMONIAL (Firebase)
+   ============================================================ */
+.share-testimonial {
+  padding: var(--space-3xl) 0;
+  background: linear-gradient(180deg, rgba(56,189,248,0.02) 0%, rgba(34,197,94,0.02) 100%);
+  border-top: 1px solid var(--color-border-2);
+}
+
+.share-testimonial-wrapper {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+.testimonial-form-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem;
+  box-shadow: var(--shadow-md);
+}
+
+.firebase-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+/* ---- Rating Stars ---- */
+.rating-stars {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.star-label {
+  font-size: 2.2rem;
+  color: var(--color-text-dim);
+  cursor: pointer;
+  transition: all var(--dur-base);
+  line-height: 1;
+}
+
+.rating-stars input:checked ~ .star-label,
+.star-label:hover,
+.star-label:hover ~ .star-label {
+  color: var(--color-warning);
+  transform: scale(1.1);
+}
+
+/* ---- Character Counter ---- */
+.char-count {
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+  text-align: right;
+  display: block;
+  margin-top: 0.3rem;
+}
+
+/* ---- Info Cards ---- */
+.testimonial-info-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  transition: all var(--dur-base);
+}
+
+.info-card:hover {
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-glow-sm);
+  transform: translateY(-2px);
+}
+
+.info-icon {
+  font-size: 2.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.info-card h3 {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-white);
+  margin-bottom: 0.5rem;
+}
+
+.info-card p {
+  font-size: 0.82rem;
+  color: var(--color-text-dim);
+  line-height: 1.65;
+}
+
+/* ---- Firebase Toast ---- */
+.firebase-toast {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 9999;
+  background: linear-gradient(135deg, #0d2a1a 0%, #0f3320 100%);
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  border-radius: 14px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.55), 0 0 24px rgba(34,197,94,0.12);
+  min-width: 300px;
+  max-width: 90vw;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  opacity: 0;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+}
+
+.firebase-toast.toast-show {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.firebase-toast.toast-hide {
+  opacity: 0;
+  transform: translateX(-50%) translateY(12px);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1023px) {
+  .share-testimonial-wrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .testimonial-form-box {
+    padding: 1.75rem;
+  }
+
+  .testimonial-info-box {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    display: grid;
+  }
+}
+
+@media (max-width: 767px) {
+  .share-testimonial {
+    padding: 2.5rem 0;
+  }
+
+  .testimonial-form-box {
+    padding: 1.5rem;
+  }
+
+  .testimonial-info-box {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .info-card {
+    padding: 1.25rem;
+  }
+
+  .firebase-form {
+    gap: 0.9rem;
+  }
+}
+
+/* ============================================================
    17. FAQ
    ============================================================ */
 .faq {
@@ -5054,6 +5233,114 @@ html {
     </section>
 
     <!-- ========================================
+         COMPARTIR TESTIMONIO (Firebase)
+    ======================================== -->
+    <section class="share-testimonial" id="compartir-testimonio" aria-label="Comparte tu testimonio">
+      <div class="section-container">
+        <div class="section-header reveal">
+          <div class="section-label">Tu Opinión Importa</div>
+          <h2 class="section-title">Comparte tu <span class="text-accent">experiencia con nosotros</span></h2>
+          <p class="section-subtitle">¿Ya trabajaste con RGWebSolutions? Cuéntanos tu historia. Los testimonios auténticos nos ayudan a mejorar.</p>
+        </div>
+
+        <div class="share-testimonial-wrapper reveal">
+          <!-- Formulario -->
+          <div class="testimonial-form-box">
+            <form id="firebase-testimonial-form" class="firebase-form" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="tst-name" class="form-label">Tu Nombre <span class="required" aria-hidden="true">*</span></label>
+                  <input type="text" id="tst-name" name="name" class="form-input" placeholder="Tu nombre completo" required autocomplete="name" />
+                  <span class="form-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                  <label for="tst-company" class="form-label">Tu Empresa/Negocio</label>
+                  <input type="text" id="tst-company" name="company" class="form-input" placeholder="Nombre de tu negocio" autocomplete="organization" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="tst-rating" class="form-label">Calificación <span class="required" aria-hidden="true">*</span></label>
+                  <div class="rating-stars" id="rating-stars" role="radiogroup" aria-label="Calificación">
+                    <input type="radio" id="star5" name="rating" value="5" hidden required />
+                    <input type="radio" id="star4" name="rating" value="4" hidden />
+                    <input type="radio" id="star3" name="rating" value="3" hidden />
+                    <input type="radio" id="star2" name="rating" value="2" hidden />
+                    <input type="radio" id="star1" name="rating" value="1" hidden />
+                    
+                    <label for="star5" class="star-label" aria-label="5 estrellas">★</label>
+                    <label for="star4" class="star-label" aria-label="4 estrellas">★</label>
+                    <label for="star3" class="star-label" aria-label="3 estrellas">★</label>
+                    <label for="star2" class="star-label" aria-label="2 estrellas">★</label>
+                    <label for="star1" class="star-label" aria-label="1 estrella">★</label>
+                  </div>
+                  <span class="form-error" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                  <label for="tst-service" class="form-label">Servicio Contratado <span class="required" aria-hidden="true">*</span></label>
+                  <select id="tst-service" name="service" class="form-input form-select" required>
+                    <option value="" disabled selected>Selecciona un servicio</option>
+                    <option value="diseño-web">Diseño Web</option>
+                    <option value="landing-page">Landing Page</option>
+                    <option value="sitio-corporativo">Sitio Corporativo</option>
+                    <option value="portafolio">Portafolio Profesional</option>
+                    <option value="mantenimiento">Mantenimiento Web</option>
+                    <option value="seo">SEO / Posicionamiento</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                  <span class="form-error" aria-live="polite"></span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="tst-message" class="form-label">Tu Testimonio <span class="required" aria-hidden="true">*</span></label>
+                <textarea id="tst-message" name="message" class="form-input form-textarea" placeholder="Cuéntanos cómo fue tu experiencia trabajando con RGWebSolutions, qué resultados obtuviste y por qué nos recomendarías..." required rows="5" minlength="30" maxlength="500"></textarea>
+                <span class="char-count">0 / 500</span>
+                <span class="form-error" aria-live="polite"></span>
+              </div>
+
+              <button type="submit" class="form-submit" id="firebase-submit">
+                <span class="submit-text">Compartir Testimonio</span>
+                <span class="submit-loading" hidden>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                    <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="2" stroke-dasharray="32" stroke-dashoffset="32" class="spin-circle"/>
+                  </svg>
+                  Enviando...
+                </span>
+                <svg class="submit-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M3 9h12M10 4l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </button>
+
+              <!-- Toast de éxito -->
+              <div class="firebase-toast" id="firebase-toast" aria-live="polite"></div>
+            </form>
+          </div>
+
+          <!-- Panel informativo -->
+          <div class="testimonial-info-box">
+            <div class="info-card reveal">
+              <div class="info-icon" aria-hidden="true">⭐</div>
+              <h3>¿Por qué tu testimonio?</h3>
+              <p>Tus comentarios honestos nos ayudan a mejorar y le muestran a futuros clientes la calidad real de nuestro trabajo.</p>
+            </div>
+            <div class="info-card reveal" style="--delay: 0.1s">
+              <div class="info-icon" aria-hidden="true">🔒</div>
+              <h3>Privacidad Garantizada</h3>
+              <p>Usamos encriptación y protección de datos. Tus datos personales nunca se comparten con terceros.</p>
+            </div>
+            <div class="info-card reveal" style="--delay: 0.2s">
+              <div class="info-icon" aria-hidden="true">✨</div>
+              <h3>Publicación Instantánea</h3>
+              <p>Tu testimonio aparecerá en nuestro sitio web para que otros clientes potenciales puedan verlo (previa aprobación).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================
          FAQ
     ======================================== -->
     <section class="faq" id="faq" aria-label="Preguntas frecuentes">
@@ -6661,14 +6948,325 @@ const initMobilePatches = () => {
   console.log('%c 📱 Mobile patches aplicados ', 'background:#22C55E;color:#0F172A;font-weight:bold;border-radius:4px;padding:2px 8px;');
 };
 
-/* ---- Ejecutar patches ---- */
+/* ============================================================
+   FIREBASE INTEGRATION
+   ============================================================ */
+
+// Configuración de Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDGJKsfDXoTNatb-oxVL6u8smWZcRLAruI",
+  authDomain: "rgwebsolutions-ba089.firebaseapp.com",
+  projectId: "rgwebsolutions-ba089",
+  storageBucket: "rgwebsolutions-ba089.firebasestorage.app",
+  messagingSenderId: "267968613692",
+  appId: "1:267968613692:web:593938ad78d82898086239",
+  measurementId: "G-R617C0VQJR"
+};
+
+// Inicialización de Firebase (se cargará vía CDN)
+let firebaseReady = false;
+let firebaseApp = null;
+let firebaseDB = null;
+let firebaseAnalytics = null;
+
+const initFirebaseApp = async () => {
+  // Si Firebase SDK está disponible globalmente
+  if (typeof firebase !== 'undefined' && window.firebase) {
+    try {
+      firebaseApp = firebase.initializeApp(firebaseConfig);
+      firebaseDB = firebase.firestore();
+      firebaseAnalytics = firebase.analytics();
+      
+      // Habilitar persistencia local
+      firebaseDB.enablePersistence().catch(err => {
+        if (err.code === 'failed-precondition') {
+          console.warn('Múltiples tabs abiertos, persistencia deshabilitada');
+        } else if (err.code === 'unimplemented') {
+          console.warn('Navegador no soporta persistencia');
+        }
+      });
+
+      firebaseReady = true;
+      console.log('%c 🔥 Firebase inicializado correctamente ', 'background:#FF6B35;color:#fff;font-weight:bold;border-radius:4px;padding:2px 8px;');
+      return true;
+    } catch (error) {
+      console.error('Error al inicializar Firebase:', error);
+      return false;
+    }
+  }
+  return false;
+};
+
+/**
+ * Enviar testimonios a Firebase Firestore
+ * @param {object} testimonial
+ */
+const sendTestimonialToFirebase = async (testimonial) => {
+  if (!firebaseReady || !firebaseDB) {
+    console.error('Firebase no está listo');
+    return false;
+  }
+
+  try {
+    // Agregar timestamp automático
+    testimonial.createdAt = new Date().toISOString();
+    testimonial.status = 'pending'; // Para moderación
+    testimonial.approved = false;
+
+    // Guardar en Firestore
+    const docRef = await firebaseDB.collection('testimonials').add(testimonial);
+    
+    console.log('Testimonio guardado:', docRef.id);
+
+    // Registrar evento en Analytics
+    if (firebaseAnalytics) {
+      firebase.analytics().logEvent('testimonial_submitted', {
+        service: testimonial.service,
+        rating: testimonial.rating
+      });
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error al guardar testimonio:', error);
+    throw error;
+  }
+};
+
+/**
+ * Cargar testimonios aprobados desde Firebase
+ */
+const loadTestimonialsFromFirebase = async () => {
+  if (!firebaseReady || !firebaseDB) {
+    console.log('Firebase no está listo para cargar testimonios');
+    return [];
+  }
+
+  try {
+    const snapshot = await firebaseDB
+      .collection('testimonials')
+      .where('approved', '==', true)
+      .orderBy('createdAt', 'desc')
+      .limit(10)
+      .get();
+
+    const testimonials = [];
+    snapshot.forEach(doc => {
+      testimonials.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    return testimonials;
+  } catch (error) {
+    console.error('Error al cargar testimonios:', error);
+    return [];
+  }
+};
+
+/* ============================================================
+   FORMULARIO DE FIREBASE TESTIMONIOS
+   ============================================================ */
+
+const initFirebaseTestimonialForm = () => {
+  const form = document.getElementById('firebase-testimonial-form');
+  if (!form) return;
+
+  const submitBtn = document.getElementById('firebase-submit');
+  const submitText = document.querySelector('.submit-text', submitBtn);
+  const submitLoading = document.querySelector('.submit-loading', submitBtn);
+  const messageField = document.getElementById('tst-message');
+  const charCount = document.querySelector('.char-count');
+
+  // Contador de caracteres
+  if (messageField && charCount) {
+    const maxChars = 500;
+    const updateCount = () => {
+      const len = messageField.value.length;
+      charCount.textContent = `${len} / ${maxChars}`;
+      charCount.style.color = len > maxChars * 0.9
+        ? 'var(--color-warning)'
+        : 'var(--color-text-dim)';
+      if (len > maxChars) messageField.value = messageField.value.slice(0, maxChars);
+    };
+    messageField.addEventListener('input', updateCount);
+  }
+
+  // Validación
+  const validateField = (name, value) => {
+    const rules = {
+      name: { required: true, minLength: 2, label: 'El nombre' },
+      rating: { required: true, label: 'La calificación' },
+      service: { required: true, label: 'El servicio' },
+      message: { required: true, minLength: 30, label: 'El testimonio' }
+    };
+
+    const rule = rules[name];
+    if (!rule) return null;
+    
+    const trimmed = String(value).trim();
+    if (rule.required && !trimmed) return `${rule.label} es obligatorio.`;
+    if (rule.minLength && trimmed.length < rule.minLength) {
+      return `${rule.label} debe tener al menos ${rule.minLength} caracteres.`;
+    }
+    return null;
+  };
+
+  const showError = (input, message) => {
+    input.classList.add('error');
+    input.classList.remove('success');
+    const errorEl = input.closest('.form-group')?.querySelector('.form-error');
+    if (errorEl) errorEl.textContent = message;
+  };
+
+  const showSuccess = input => {
+    input.classList.remove('error');
+    input.classList.add('success');
+    const errorEl = input.closest('.form-group')?.querySelector('.form-error');
+    if (errorEl) errorEl.textContent = '';
+  };
+
+  // Validación en tiempo real
+  document.querySelectorAll('[name]', form).forEach(input => {
+    input.addEventListener('blur', () => {
+      const error = validateField(input.name, input.value);
+      if (error) showError(input, error);
+      else if (input.value.trim()) showSuccess(input);
+    });
+
+    input.addEventListener('input', () => {
+      if (input.classList.contains('error')) {
+        const error = validateField(input.name, input.value);
+        if (!error) showSuccess(input);
+      }
+    });
+  });
+
+  // Manejo de rating stars
+  const ratingInputs = document.querySelectorAll('input[name="rating"]');
+  ratingInputs.forEach(radio => {
+    radio.addEventListener('change', () => {
+      const error = document.querySelector('[data-rating-error]');
+      if (error) error.textContent = '';
+      showSuccess(document.getElementById('rating-stars'));
+    });
+  });
+
+  // Toast
+  const showToast = (message, isSuccess = true) => {
+    const toast = document.getElementById('firebase-toast');
+    if (!toast) return;
+
+    const icon = isSuccess ? '✅' : '❌';
+    const title = isSuccess ? '¡Gracias por tu testimonio!' : 'Error al enviar';
+    const desc = isSuccess
+      ? 'Tu testimonio será revisado y publicado pronto.'
+      : message;
+
+    toast.innerHTML = `
+      <span class="toast-icon">${icon}</span>
+      <div class="toast-body">
+        <strong>${title}</strong>
+        <p>${desc}</p>
+      </div>
+      <div class="toast-progress"></div>
+    `;
+
+    toast.classList.remove('toast-hide');
+    toast.classList.add('toast-show');
+
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => {
+        toast.classList.remove('toast-show', 'toast-hide');
+        toast.innerHTML = '';
+      }, 400);
+    }, 5000);
+  };
+
+  // Submit
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+
+    if (!firebaseReady) {
+      showToast('Firebase no está disponible. Intenta más tarde.', false);
+      return;
+    }
+
+    // Validar
+    let isValid = true;
+    const fields = {
+      name: form.elements['name'].value,
+      rating: form.elements['rating'].value,
+      service: form.elements['service'].value,
+      message: form.elements['message'].value
+    };
+
+    Object.entries(fields).forEach(([name, value]) => {
+      const input = form.elements[name];
+      const error = validateField(name, value);
+      if (error) { showError(input, error); isValid = false; }
+      else showSuccess(input);
+    });
+
+    if (!isValid) return;
+
+    // Enviar
+    submitBtn.disabled = true;
+    if (submitText)    submitText.hidden = true;
+    if (submitLoading) submitLoading.hidden = false;
+
+    try {
+      await sendTestimonialToFirebase({
+        name: fields.name.trim(),
+        company: (form.elements['company']?.value || '').trim() || 'No especificada',
+        rating: parseInt(fields.rating, 10),
+        service: fields.service,
+        message: fields.message.trim()
+      });
+
+      form.reset();
+      document.querySelectorAll('[name]', form).forEach(input => {
+        input.classList.remove('error', 'success');
+        const errorEl = input.closest('.form-group')?.querySelector('.form-error');
+        if (errorEl) errorEl.textContent = '';
+      });
+      if (charCount) charCount.textContent = '0 / 500';
+
+      showToast();
+    } catch (error) {
+      console.error('Error:', error);
+      showToast('Error al enviar tu testimonio. Intenta nuevamente.', false);
+    } finally {
+      submitBtn.disabled = false;
+      if (submitText)    submitText.hidden = false;
+      if (submitLoading) submitLoading.hidden = true;
+    }
+  });
+};
+
+/* ============================================================
+   Inicializar Firebase y formularios
+   ============================================================ */
+const initFirebaseAll = async () => {
+  await initFirebaseApp();
+  initFirebaseTestimonialForm();
+};
+
 if (document.readyState !== 'loading') {
-  initMobilePatches();
+  initFirebaseAll();
 } else {
-  document.addEventListener('DOMContentLoaded', initMobilePatches);
+  document.addEventListener('DOMContentLoaded', initFirebaseAll);
 }
 
 
 </script>
+
+  <!-- Firebase SDK (v11.0.2) -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js"></script>
+
 </body>
 </html>

@@ -29,7 +29,7 @@
 
   <!-- Google Fonts -->
   <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
 /* ============================================================
    RGWebSolutions — styles.css
@@ -44,9 +44,9 @@
    ============================================================ */
 :root {
   /* Brand Colors */
-  --color-bg:         #0F172A;
-  --color-surface:    #1E293B;
-  --color-surface-2:  #263345;
+  --color-bg:         rgba(9, 18, 40, 0.0);
+  --color-surface:    rgba(30, 41, 59, 0.55);
+  --color-surface-2:  rgba(38, 51, 69, 0.5);
   --color-accent:     #38BDF8;
   --color-accent-2:   #22C55E;
   --color-warning:    #F59E0B;
@@ -54,8 +54,8 @@
   --color-white:      #FFFFFF;
   --color-text:       #CBD5E1;
   --color-text-dim:   #64748B;
-  --color-border:     rgba(56, 189, 248, 0.12);
-  --color-border-2:   rgba(255, 255, 255, 0.06);
+  --color-border:     rgba(56, 189, 248, 0.15);
+  --color-border-2:   rgba(255, 255, 255, 0.08);
 
   /* Typography */
   --font-display:  'Syne', sans-serif;
@@ -114,7 +114,7 @@ html {
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-bg);
+  background-color: transparent;
   color: var(--color-text);
   line-height: 1.6;
   overflow-x: hidden;
@@ -154,8 +154,38 @@ input, textarea, select {
 }
 
 /* ============================================================
-   3. TYPOGRAPHY HELPERS
+   GLASSMORPHISM — All cards get blur backdrop for video-through effect
    ============================================================ */
+.service-card-inner,
+.portfolio-card,
+.benefit-item,
+.tech-card,
+.tech-dashboard,
+.testimonial-card,
+.faq-item,
+.about-card-main,
+.about-metric-card,
+.process-icon,
+.contact-form-card,
+.contact-info-card,
+.float-card,
+.stat-item,
+.footer-col,
+.form-group {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Sections that use surface backgrounds need slight blur too */
+.mobile-menu {
+  background: rgba(9, 18, 40, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+.navbar.scrolled {
+  background: rgba(9, 18, 40, 0.8) !important;
+}
 .section-label {
   display: inline-block;
   font-family: var(--font-display);
@@ -295,16 +325,17 @@ input, textarea, select {
   right: 0;
   z-index: 1000;
   height: var(--nav-height);
+  background: transparent;
   transition: background var(--dur-slow) var(--ease-smooth),
               backdrop-filter var(--dur-slow) var(--ease-smooth),
               box-shadow var(--dur-slow) var(--ease-smooth);
 }
 
 .navbar.scrolled {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 1px 0 var(--color-border-2), 0 4px 32px rgba(0,0,0,0.4);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 4px 32px rgba(0,0,0,0.5);
 }
 
 .nav-container {
@@ -315,7 +346,7 @@ input, textarea, select {
   height: 100%;
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: var(--space-md);
 }
 
 /* Logo */
@@ -330,73 +361,87 @@ input, textarea, select {
 .logo-icon svg { display: block; }
 
 .logo-text {
-  font-family: var(--font-display);
+  font-family: 'Inter', var(--font-display);
   font-weight: 700;
   font-size: 1.15rem;
-  color: var(--color-white);
+  color: #ffffff;
   letter-spacing: -0.02em;
 }
 
-.logo-accent { color: var(--color-accent); }
+.logo-accent { color: #ffffff; }
 
-/* Desktop nav links */
+/* Desktop nav links — pill container */
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.1rem;
   flex: 1;
   justify-content: center;
+  border: 1px solid rgba(107, 114, 128, 0.45);
+  border-radius: 9999px;
+  padding: 0.3rem 0.5rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.2);
+  max-width: fit-content;
+  margin: 0 auto;
 }
 
 .nav-link {
-  font-family: var(--font-display);
+  font-family: 'Inter', var(--font-body);
   font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text);
-  padding: 0.4rem 0.75rem;
-  border-radius: var(--radius-sm);
+  font-weight: 400;
+  color: rgba(255,255,255,0.8);
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
   transition: color var(--dur-base), background var(--dur-base);
   position: relative;
+  white-space: nowrap;
 }
 
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: calc(100% - 1.5rem);
-  height: 2px;
-  background: var(--color-accent);
-  border-radius: 2px;
-  transition: transform var(--dur-base) var(--ease-smooth);
+.nav-link::after { display: none; }
+
+.nav-link:hover { color: #ffffff; background: rgba(255,255,255,0.08); }
+.nav-link.active { color: #ffffff; background: rgba(255,255,255,0.1); }
+
+/* Contact link with arrow (last nav item) */
+.nav-link-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.nav-link:hover { color: var(--color-white); }
-.nav-link:hover::after { transform: translateX(-50%) scaleX(1); }
-.nav-link.active { color: var(--color-accent); }
-.nav-link.active::after { transform: translateX(-50%) scaleX(1); }
+.nav-link-contact svg {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.nav-link-contact:hover svg {
+  transform: translateX(2px);
+}
 
 /* CTA nav button */
 .btn-cta-nav {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  font-family: var(--font-display);
-  font-weight: 600;
+  font-family: 'Inter', var(--font-body);
+  font-weight: 500;
   font-size: 0.875rem;
-  color: var(--color-bg);
-  background: var(--color-accent);
-  padding: 0.55rem 1.2rem;
-  border-radius: var(--radius-md);
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 0.5rem 1.1rem;
+  border-radius: 9999px;
   flex-shrink: 0;
   transition: all var(--dur-base) var(--ease-smooth);
+  backdrop-filter: blur(8px);
 }
 
 .btn-cta-nav:hover {
-  background: #7DD3FC;
+  background: rgba(255,255,255,0.18);
+  color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: var(--shadow-glow-sm);
 }
 
 /* Hamburger */
@@ -495,82 +540,150 @@ input, textarea, select {
 .mobile-cta:hover { background: #7DD3FC; }
 
 /* ============================================================
-   7. HERO
+   7. HERO — Transparent over global video
    ============================================================ */
 .hero {
   position: relative;
+  height: 100vh;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: transparent;
+  padding-top: 0;
+}
+
+/* Remove old local video bg (now using global fixed video) */
+.hero-video-bg { display: none; }
+
+/* Nav top-section two-col info bar */
+.hero-info-bar {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-top: calc(var(--nav-height) + 2rem);
+  gap: 1.5rem;
+}
+
+.hero-info-left {
+  max-width: 52%;
+  font-family: 'Inter', var(--font-body);
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.65;
+}
+
+.hero-info-right {
+  text-align: right;
+  font-family: 'Inter', var(--font-body);
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.65;
+  flex-shrink: 0;
+}
+
+/* Hero center content */
+.hero-center {
+  position: relative;
+  z-index: 10;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  padding-top: var(--nav-height);
+  text-align: center;
+  padding: 0 1.5rem 3rem;
 }
 
-/* Background effects */
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
+.hero-eyebrow {
+  font-family: 'Inter', var(--font-body);
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.25rem;
 }
 
-.hero-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--color-border-2) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-border-2) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
-  pointer-events: none;
+.hero-main-title {
+  font-family: 'Inter', var(--font-display);
+  font-weight: 500;
+  font-size: clamp(3rem, 9vw, 9rem);
+  color: #ffffff;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
 }
 
-.hero-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.15;
-  pointer-events: none;
+.hero-main-title .line-plain {
+  display: block;
+  color: #ffffff;
+  font-weight: 500;
 }
 
-.hero-orb-1 {
-  width: 600px;
-  height: 600px;
-  background: var(--color-accent);
-  top: -200px;
-  right: -200px;
-  animation: orb-float 12s ease-in-out infinite;
+/* Shiny text gradient animation */
+.hero-main-title .line-shiny {
+  display: block;
+  font-weight: 500;
+  background: linear-gradient(
+    100deg,
+    #64CEFB 0%,
+    #64CEFB 20%,
+    #ffffff 40%,
+    #64CEFB 60%,
+    #64CEFB 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shiny-sweep 3s linear infinite;
 }
 
-.hero-orb-2 {
-  width: 400px;
-  height: 400px;
-  background: var(--color-accent-2);
-  bottom: -100px;
-  left: -100px;
-  animation: orb-float 15s ease-in-out infinite reverse;
-  opacity: 0.08;
+@keyframes shiny-sweep {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
-.hero-orb-3 {
-  width: 300px;
-  height: 300px;
-  background: var(--color-warning);
-  top: 40%;
-  left: 30%;
-  animation: orb-float 20s ease-in-out infinite;
-  opacity: 0.05;
+/* CTA button — hero */
+.hero-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Inter', var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #ffffff;
+  background: #000000;
+  border: none;
+  padding: 0.85rem 1.75rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.25s ease, transform 0.2s ease;
+  margin-top: 2.5rem;
 }
 
-.hero-noise {
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  opacity: 0.4;
-  pointer-events: none;
+.hero-cta-btn:hover {
+  background: #1a1a1a;
+}
+
+.hero-cta-btn:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+.cta-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
 }
 
 @keyframes orb-float {
@@ -579,35 +692,15 @@ input, textarea, select {
   66%       { transform: translate(-20px, 20px) scale(0.97); }
 }
 
-/* Hero layout */
+/* Hero layout — legacy container hidden, replaced by new structure */
 .hero-container {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: var(--space-xl) var(--space-lg);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-xl);
-  align-items: center;
+  display: none;
 }
 
-/* Hero content */
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-full);
-  margin-bottom: var(--space-md);
-  letter-spacing: 0.04em;
-}
+/* Hero content kept for JS hooks but hidden visually */
+.hero-content { display: none; }
+.hero-visual   { display: none; }
+.hero-badge    { display: none; }
 
 .hero-badge-dot {
   width: 7px;
@@ -916,16 +1009,17 @@ input, textarea, select {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.7rem;
-  color: var(--color-text-dim);
+  color: rgba(255,255,255,0.5);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   animation: fade-up-loop 3s ease-in-out infinite;
+  z-index: 10;
 }
 
 .scroll-mouse {
   width: 22px;
   height: 35px;
-  border: 1.5px solid var(--color-text-dim);
+  border: 1.5px solid rgba(255,255,255,0.4);
   border-radius: 12px;
   display: flex;
   justify-content: center;
@@ -994,9 +1088,11 @@ input, textarea, select {
    9. STATS BAR
    ============================================================ */
 .stats-bar {
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border-2);
-  border-bottom: 1px solid var(--color-border-2);
+  background: rgba(30, 41, 59, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
   padding: var(--space-lg) 0;
 }
 
@@ -1771,9 +1867,11 @@ input, textarea, select {
    ============================================================ */
 .benefits {
   padding: var(--space-3xl) 0;
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border-2);
-  border-bottom: 1px solid var(--color-border-2);
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .benefits-grid {
@@ -2265,8 +2363,10 @@ input, textarea, select {
    ============================================================ */
 .contact {
   padding: var(--space-3xl) 0;
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border-2);
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .contact-grid {
@@ -2464,8 +2564,10 @@ a.contact-detail-val:hover { color: var(--color-accent); }
    20. FOOTER
    ============================================================ */
 .footer {
-  background: #080e1b;
-  border-top: 1px solid var(--color-border-2);
+  background: rgba(4, 8, 18, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255,255,255,0.07);
   padding: var(--space-2xl) 0 var(--space-md);
 }
 
@@ -3173,7 +3275,19 @@ html {
     gap: 1rem;
   }
 
-  /* ---- HERO ---- */
+  /* ---- HERO NEW ---- */
+  .hero-info-bar {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: calc(var(--nav-height) + 1.5rem);
+  }
+
+  .hero-info-left  { max-width: 100%; font-size: 0.8rem; }
+  .hero-info-right { text-align: left; font-size: 0.8rem; }
+
+  .hero-eyebrow { font-size: 0.7rem; }
+
+  /* ---- HERO LEGACY (hidden) ---- */
   .hero-container {
     grid-template-columns: 1fr;
     text-align: center;
@@ -4106,6 +4220,40 @@ html {
 </head>
 <body>
 
+  <!-- =============================================
+       GLOBAL VIDEO BACKGROUND (fixed, behind all)
+  ============================================= -->
+  <div id="global-video-bg" aria-hidden="true" style="
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    background: #000000;
+  ">
+    <video autoplay loop muted playsinline preload="auto" style="
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: 0.55;
+    ">
+      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4" type="video/mp4">
+    </video>
+    <!-- Dark gradient overlay for readability in deeper sections -->
+    <div style="
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.2) 0%,
+        rgba(9,18,40,0.55) 30%,
+        rgba(9,18,40,0.7) 70%,
+        rgba(9,18,40,0.82) 100%
+      );
+    "></div>
+  </div>
+
   <!-- ========================================
        NAVBAR
   ======================================== -->
@@ -4115,9 +4263,8 @@ html {
       <a href="#inicio" class="nav-logo" aria-label="RGWebSolutions - Inicio">
         <span class="logo-icon" aria-hidden="true">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="32" height="32" rx="8" fill="#38BDF8"/>
-            <path d="M8 8h8c3.314 0 6 2.686 6 6s-2.686 6-6 6H8V8z" fill="#0F172A"/>
-            <circle cx="20" cy="22" r="4" fill="#0F172A"/>
+            <circle cx="16" cy="16" r="15" fill="none" stroke="#ffffff" stroke-width="2"/>
+            <circle cx="16" cy="16" r="7" fill="#ffffff"/>
           </svg>
         </span>
         <span class="logo-text">RG<span class="logo-accent">Web</span>Solutions</span>
@@ -4170,151 +4317,73 @@ html {
   <main id="main-content">
 
     <!-- ========================================
-         HERO SECTION
+         HERO SECTION — Video Background
     ======================================== -->
     <section class="hero" id="inicio" aria-label="Hero principal">
-      <!-- Background effects -->
-      <div class="hero-bg" aria-hidden="true">
-        <div class="hero-grid"></div>
-        <div class="hero-orb hero-orb-1"></div>
-        <div class="hero-orb hero-orb-2"></div>
-        <div class="hero-orb hero-orb-3"></div>
-        <div class="hero-noise"></div>
-      </div>
 
-      <div class="hero-container">
-        <!-- Left: Content -->
+      <!-- Lighter overlay just for hero area (global video bg already covers) -->
+      <div class="hero-video-overlay" aria-hidden="true" style="
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: rgba(0,0,0,0.15);
+        pointer-events: none;
+      "></div>
+
+      <!-- Hidden original hero content preserved for JS hooks -->
+      <div class="hero-container" aria-hidden="true">
         <div class="hero-content">
-          <div class="hero-badge animate-fade-up" aria-label="Agencia de desarrollo web">
-            <span class="hero-badge-dot" aria-hidden="true"></span>
+          <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
             <span>Agencia Digital · México</span>
           </div>
-
-          <h1 class="hero-title animate-fade-up" style="--delay: 0.1s">
+          <h1 class="hero-title">
             Transformamos ideas en sitios web
             <span class="hero-title-accent"> profesionales.</span>
           </h1>
-
-          <p class="hero-subtitle animate-fade-up" style="--delay: 0.2s">
+          <p class="hero-subtitle">
             Creamos experiencias digitales modernas para negocios, emprendedores y empresas que desean destacar en Internet.
           </p>
-
-          <div class="hero-actions animate-fade-up" style="--delay: 0.3s">
-            <a href="#portafolio" class="btn-primary">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                <rect x="2" y="2" width="6" height="6" rx="1" fill="currentColor"/>
-                <rect x="10" y="2" width="6" height="6" rx="1" fill="currentColor" opacity="0.6"/>
-                <rect x="2" y="10" width="6" height="6" rx="1" fill="currentColor" opacity="0.6"/>
-                <rect x="10" y="10" width="6" height="6" rx="1" fill="currentColor" opacity="0.3"/>
-              </svg>
-              Ver Portafolio
-            </a>
-            <a href="#contacto" class="btn-secondary">
-              Solicitar Cotización
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
+          <div class="hero-actions">
+            <a href="#portafolio" class="btn-primary">Ver Portafolio</a>
+            <a href="#contacto" class="btn-secondary">Solicitar Cotización</a>
           </div>
-
-          <!-- Trust badges -->
-          <div class="hero-trust animate-fade-up" style="--delay: 0.4s">
-            <div class="trust-item">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M7 1l1.545 3.13L12 4.635l-2.5 2.435.59 3.44L7 8.93 3.91 10.51l.59-3.44L2 4.635l3.455-.505L7 1z" fill="#22C55E"/>
-              </svg>
-              <span>+5 proyectos entregados</span>
-            </div>
-            <div class="trust-separator" aria-hidden="true">·</div>
-            <div class="trust-item">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <circle cx="7" cy="7" r="6" stroke="#38BDF8" stroke-width="1.5"/>
-                <path d="M4.5 7l2 2 3-3" stroke="#38BDF8" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              <span>100% satisfacción garantizada</span>
-            </div>
-            <div class="trust-separator" aria-hidden="true">·</div>
-            <div class="trust-item">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M2 7c0-2.761 2.239-5 5-5s5 2.239 5 5-2.239 5-5 5S2 9.761 2 7z" stroke="#F59E0B" stroke-width="1.5"/>
-                <path d="M7 4.5v3l1.5 1.5" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              <span>Entrega en 15–30 días</span>
-            </div>
+          <div class="hero-trust">
+            <div class="trust-item"><span>+5 proyectos entregados</span></div>
+            <div class="trust-separator">·</div>
+            <div class="trust-item"><span>100% satisfacción garantizada</span></div>
+            <div class="trust-separator">·</div>
+            <div class="trust-item"><span>Entrega en 15–30 días</span></div>
           </div>
         </div>
+        <div class="hero-visual" aria-hidden="true"></div>
+      </div>
 
-        <!-- Right: Visual mockup -->
-        <div class="hero-visual animate-fade-left" style="--delay: 0.2s" aria-hidden="true">
-          <div class="mockup-wrapper">
-            <!-- Laptop frame -->
-            <div class="laptop">
-              <div class="laptop-screen">
-                <div class="laptop-browser">
-                  <div class="browser-bar">
-                    <div class="browser-dots">
-                      <span class="dot dot-red"></span>
-                      <span class="dot dot-yellow"></span>
-                      <span class="dot dot-green"></span>
-                    </div>
-                    <div class="browser-url">rgwebsolutions.com</div>
-                  </div>
-                  <div class="browser-content">
-                    <!-- Simulated website content -->
-                    <div class="sim-nav"></div>
-                    <div class="sim-hero">
-                      <div class="sim-headline"></div>
-                      <div class="sim-sub"></div>
-                      <div class="sim-btns">
-                        <div class="sim-btn sim-btn-primary"></div>
-                        <div class="sim-btn sim-btn-secondary"></div>
-                      </div>
-                    </div>
-                    <div class="sim-cards">
-                      <div class="sim-card"></div>
-                      <div class="sim-card"></div>
-                      <div class="sim-card"></div>
-                    </div>
-                    <!-- Animated code lines -->
-                    <div class="code-lines">
-                      <div class="code-line" style="--w:70%;--d:0s"></div>
-                      <div class="code-line" style="--w:50%;--d:0.3s"></div>
-                      <div class="code-line" style="--w:85%;--d:0.6s"></div>
-                      <div class="code-line" style="--w:40%;--d:0.9s"></div>
-                      <div class="code-line" style="--w:65%;--d:1.2s"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="laptop-base">
-                <div class="laptop-hinge"></div>
-              </div>
-            </div>
+      <!-- Info bar: two-column descriptive text -->
+      <div class="hero-info-bar">
+        <p class="hero-info-left">
+          Transformamos ideas en sitios web profesionales, creando experiencias digitales modernas para negocios, emprendedores y empresas que desean destacar en Internet.
+        </p>
+        <p class="hero-info-right">
+          +5 proyectos entregados — 100% clientes satisfechos
+        </p>
+      </div>
 
-            <!-- Floating cards -->
-            <div class="float-card float-card-1">
-              <div class="float-card-icon">⚡</div>
-              <div class="float-card-text">
-                <span class="float-title">Velocidad</span>
-                <span class="float-val">99/100</span>
-              </div>
-            </div>
-            <div class="float-card float-card-2">
-              <div class="float-card-icon">📱</div>
-              <div class="float-card-text">
-                <span class="float-title">Responsive</span>
-                <span class="float-val">100%</span>
-              </div>
-            </div>
-            <div class="float-card float-card-3">
-              <div class="float-card-icon">🔍</div>
-              <div class="float-card-text">
-                <span class="float-title">SEO Score</span>
-                <span class="float-val">A+</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- Center: Big headline + CTA -->
+      <div class="hero-center">
+        <p class="hero-eyebrow">Disponibilidad para nuevos proyectos · Contáctanos hoy</p>
+
+        <h1 class="hero-main-title">
+          <span class="line-plain">Presencia</span>
+          <span class="line-shiny">Web Profesional.</span>
+        </h1>
+
+        <a href="#contacto" class="hero-cta-btn" aria-label="Solicitar Cotización">
+          Solicitar Cotización
+          <svg class="cta-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
       </div>
 
       <!-- Scroll indicator -->

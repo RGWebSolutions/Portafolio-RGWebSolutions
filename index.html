@@ -1983,8 +1983,8 @@ input, textarea, select {
 /* ---- Rating Stars ---- */
 .rating-stars {
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-end;
+  flex-direction: row;
+  justify-content: flex-start;
   gap: 0.5rem;
 }
 
@@ -2013,7 +2013,7 @@ input, textarea, select {
   color: var(--color-danger);
 }
 
-.rating-stars.success .star-label {
+.rating-stars.success .star-label.active {
   color: var(--color-warning);
 }
 
@@ -5243,17 +5243,17 @@ html {
                 <div class="form-group">
                   <label for="tst-rating" class="form-label">Calificación <span class="required" aria-hidden="true">*</span></label>
                   <div class="rating-stars" id="rating-stars" role="radiogroup" aria-label="Calificación">
-                    <input type="radio" id="star5" name="rating" value="5" hidden required />
-                    <input type="radio" id="star4" name="rating" value="4" hidden />
-                    <input type="radio" id="star3" name="rating" value="3" hidden />
+                    <input type="radio" id="star1" name="rating" value="1" hidden required />
                     <input type="radio" id="star2" name="rating" value="2" hidden />
-                    <input type="radio" id="star1" name="rating" value="1" hidden />
+                    <input type="radio" id="star3" name="rating" value="3" hidden />
+                    <input type="radio" id="star4" name="rating" value="4" hidden />
+                    <input type="radio" id="star5" name="rating" value="5" hidden />
                     
-                    <label for="star5" class="star-label" aria-label="5 estrellas">★</label>
-                    <label for="star4" class="star-label" aria-label="4 estrellas">★</label>
-                    <label for="star3" class="star-label" aria-label="3 estrellas">★</label>
-                    <label for="star2" class="star-label" aria-label="2 estrellas">★</label>
                     <label for="star1" class="star-label" aria-label="1 estrella">★</label>
+                    <label for="star2" class="star-label" aria-label="2 estrellas">★</label>
+                    <label for="star3" class="star-label" aria-label="3 estrellas">★</label>
+                    <label for="star4" class="star-label" aria-label="4 estrellas">★</label>
+                    <label for="star5" class="star-label" aria-label="5 estrellas">★</label>
                   </div>
                   <span class="form-error" aria-live="polite"></span>
                 </div>
@@ -6675,45 +6675,50 @@ const initTestimonialForm = () => {
   const starLabels = $$('.star-label', ratingGroup);
   
   const updateStars = (count) => {
-    starLabels.forEach((label, index) => {
-      if (index < count) label.classList.add('active');
-      else label.classList.remove('active');
-    });
+    starLabels.forEach(lbl => lbl.classList.remove('active', 'hover-preview'));
+    
+    switch (count) {
+      case 1:
+        starLabels[0].classList.add('active');
+        break;
+      case 2:
+        starLabels[0].classList.add('active');
+        starLabels[1].classList.add('active');
+        break;
+      case 3:
+        starLabels[0].classList.add('active');
+        starLabels[1].classList.add('active');
+        starLabels[2].classList.add('active');
+        break;
+      case 4:
+        starLabels[0].classList.add('active');
+        starLabels[1].classList.add('active');
+        starLabels[2].classList.add('active');
+        starLabels[3].classList.add('active');
+        break;
+      case 5:
+        starLabels.forEach(lbl => lbl.classList.add('active'));
+        break;
+    }
     
     if (count) ratingGroup.classList.add('active');
     else ratingGroup.classList.remove('active');
   };
 
-  $$('[name]', form).forEach(input => {
-    if (input.name === 'rating') {
-      on(input, 'change', () => {
-        const val = parseInt(input.value, 10);
-        updateStars(val);
-        if (getRatingValue()) showSuccess(ratingGroup);
-      });
-      return;
-    }
-
-    on(input, 'blur', () => {
-      const error = validateField(input.name, input.value);
-      if (error) showError(input, error);
-      else if (input.value.trim()) showSuccess(input);
-    });
-
-    on(input, 'input', () => {
-      if (input.classList.contains('error')) {
-        const error = validateField(input.name, input.value);
-        if (!error) showSuccess(input);
-      }
+  $$('[name="rating"]', form).forEach(input => {
+    on(input, 'change', () => {
+      const val = parseInt(input.value, 10);
+      updateStars(val);
+      if (getRatingValue()) showSuccess(ratingGroup);
     });
   });
 
   /* ---- Hover visual ---- */
   starLabels.forEach(label => {
     on(label, 'mouseenter', () => {
-      const value = parseInt(label.getAttribute('aria-label'), 10);
+      const hoverValue = parseInt(label.getAttribute('aria-label'), 10);
       starLabels.forEach((lbl, index) => {
-        if (value - index > 0) lbl.classList.add('hover-preview');
+        if (index < hoverValue) lbl.classList.add('hover-preview');
         else lbl.classList.remove('hover-preview');
       });
     });
@@ -6721,6 +6726,8 @@ const initTestimonialForm = () => {
 
   on(ratingGroup, 'mouseleave', () => {
     starLabels.forEach(lbl => lbl.classList.remove('hover-preview'));
+    const currentRating = parseInt(getRatingValue(), 10) || 0;
+    updateStars(currentRating);
   });
 
   /* ---- Inicialización visual de estrellas por defecto ---- */
@@ -6825,7 +6832,7 @@ const initTestimonialForm = () => {
     try {
       const name    = form.elements['name']?.value.trim()     || '';
       const company = form.elements['company']?.value.trim()  || 'No especificada';
-      const rating  = getRatingValue()                        || '5';
+      const rating  = getRatingValue()                        || '';
       const service = form.elements['service']?.value         || '';
       const message = form.elements['message']?.value.trim()  || '';
 

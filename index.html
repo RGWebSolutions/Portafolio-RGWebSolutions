@@ -5645,11 +5645,6 @@ html {
     </div>
   </footer>
 
-  <!-- Firebase SDK (v11.0.2 compat - DEBE CARGARSE ANTES del script principal) -->
-  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics-compat.js"></script>
-
   <!-- ========================================
        FLOATING ELEMENTS
   ======================================== -->
@@ -6635,7 +6630,225 @@ const initProcessHighlight = () => {
   steps.forEach(step => observer.observe(step));
 };
 
-/* (Función eliminada - usar initFirebaseTestimonialForm en su lugar) */
+/* ============================================================
+   26. FORMULARIO DE TESTIMONIO (Firebase)
+   ============================================================ */
+const initTestimonialForm = () => {
+  const form        = $('#firebase-testimonial-form');
+  if (!form) return;
+
+  const submitBtn     = $('#firebase-submit');
+  const submitText    = $('.submit-text', submitBtn);
+  const submitLoading = $('.submit-loading', submitBtn);
+
+  /* ---- Reglas de validación ---- */
+  const rules = {
+    name: {
+      required: true,
+      minLength: 2,
+      label: 'El nombre'
+    },
+    service: {
+      required: true,
+      label: 'El servicio'
+    },
+    rating: {
+      required: true,
+      label: 'La calificación'
+    },
+    message: {
+      required: true,
+      minLength: 30,
+      label: 'El testimonio'
+    }
+  };
+
+  const validateField = (name, value) => {
+    const rule = rules[name];
+    if (!rule) return null;
+    const trimmed = String(value).trim();
+    if (rule.required && !trimmed) return `${rule.label} es obligatorio.`;
+    if (rule.minLength && trimmed.length < rule.minLength) return `${rule.label} debe tener al menos ${rule.minLength} caracteres.`;
+    return null;
+  };
+
+  const showError = (input, message) => {
+    input.classList.add('error');
+    input.classList.remove('success');
+    const errorEl = input.closest('.form-group')?.querySelector('.form-error');
+    if (errorEl) errorEl.textContent = message;
+  };
+
+  const showSuccess = input => {
+    input.classList.remove('error');
+    input.classList.add('success');
+    const errorEl = input.closest('.form-group')?.querySelector('.form-error');
+    if (errorEl) errorEl.textContent = '';
+  };
+
+  /* ---- Validación en tiempo real ---- */
+  $$('[name]', form).forEach(input => {
+    on(input, 'blur', () => {
+      const error = validateField(input.name, input.value);
+      if (error) showError(input, error);
+      else if (input.value.trim()) showSuccess(input);
+    });
+    on(input, 'input', () => {
+      if (input.classList.contains('error')) {
+        const error = validateField(input.name, input.value);
+        if (!error) showSuccess(input);
+      }
+    });
+  });
+
+  /* ---- Contador de caracteres ---- */
+  const textarea = $('#tst-message');
+  if (textarea) {
+    const maxChars = 500;
+    on(textarea, 'input', () => {
+      const len = textarea.value.length;
+      const counter = textarea.closest('.form-group')?.querySelector('.char-count');
+      if (counter) counter.textContent = `${len} / ${maxChars}`;
+      if (len > maxChars) textarea.value = textarea.value.slice(0, maxChars);
+    });
+  }
+
+  /* ---- Toast de éxito ---- */
+  const showToast = () => {
+    const toast = $('#firebase-toast');
+    if (!toast) return;
+
+    toast.innerHTML = `
+      <span class="toast-icon">✅</span>
+      <div class="toast-body">
+        <strong>¡Reseña Compartida!</strong>
+        <p>Gracias por tu feedback. Pronto aparecerá en nuestro sitio.</p>
+      </div>
+      <div class="toast-progress"></div>
+    `;
+
+    toast.classList.remove('toast-hide');
+    toast.classList.add('toast-show');
+
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => {
+        toast.classList.remove('toast-show', 'toast-hide');
+        toast.innerHTML = '';
+      }, 400);
+    }, 5000);
+  };
+
+  /* ---- Toast de error ---- */
+  const showToastError = message => {
+    const toast = $('#firebase-toast');
+    if (!toast) return;
+
+    toast.innerHTML = `
+      <span class="toast-icon">❌</span>
+      <div class="toast-body">
+        <strong>Error al enviar</strong>
+        <p>${message}</p>
+      </div>
+      <div class="toast-progress"></div>
+    `;
+
+    toast.classList.remove('toast-hide');
+    toast.classList.add('toast-show');
+
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => {
+        toast.classList.remove('toast-show', 'toast-hide');
+        toast.innerHTML = '';
+      }, 400);
+    }, 5000);
+  };
+
+  /* ---- Envío con Formspree ---- */
+  on(form, 'submit', async e => {
+    e.preventDefault();
+
+    // Validar todos los campos requeridos
+    let isValid = true;
+    Object.keys(rules).forEach(name => {
+      const input = form.elements[name];
+      if (!input) return;
+      const error = validateField(name, input.value);
+      if (error) { showError(input, error); isValid = false; }
+      else showSuccess(input);
+    });
+
+    if (!isValid) {
+      const firstError = form.querySelector('.form-input.error');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.focus();
+      }
+      return;
+    }
+
+    submitBtn.disabled = true;
+    if (submitText)    submitText.hidden = true;
+    if (submitLoading) submitLoading.hidden = false;
+
+    try {
+      // Recopilar datos
+      const name    = form.elements['name']?.value.trim()     || '';
+      const company = form.elements['company']?.value.trim()  || 'No especificada';
+      const rating  = form.elements['rating']?.value          || '5';
+      const service = form.elements['service']?.value         || '';
+      const message = form.elements['message']?.value.trim()  || '';
+
+      /* ----------------------------------------------------------------
+         Envío automático vía Formspree
+         Endpoint: https://formspree.io/f/xbprzgyk (testimonios)
+         ---------------------------------------------------------------- */
+      const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xbprzgyk';
+
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          _subject: `Nueva reseña — ${name} | ⭐⭐⭐⭐⭐`,
+          nombre: name,
+          empresa: company,
+          'calificación': `${rating} estrellas`,
+          servicio: service,
+          reseña: message,
+          _template: 'table'
+        })
+      });
+
+      if (response.ok) {
+        // ✅ Enviado correctamente
+        form.reset();
+        $$('[name]', form).forEach(input => {
+          input.classList.remove('error', 'success');
+          const errorEl = input.closest('.form-group')?.querySelector('.form-error');
+          if (errorEl) errorEl.textContent = '';
+        });
+        showToast();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        console.error('Error al enviar reseña:', data);
+        showToastError('Error al enviar. Por favor intenta nuevamente.');
+        return;
+      }
+
+    } catch (err) {
+      console.error('Error de envío:', err.message);
+      showToastError('Error de conexión. Por favor verifica tu internet e intenta nuevamente.');
+    } finally {
+      submitBtn.disabled = false;
+      if (submitText)    submitText.hidden = false;
+      if (submitLoading) submitLoading.hidden = true;
+    }
+  });
+};
 
 /* ============================================================
    INICIALIZACIÓN PRINCIPAL
@@ -6655,6 +6868,7 @@ ready(() => {
   initTestimonials();
   initFAQ();
   initContactForm();
+  initTestimonialForm();
   initFormEnhancements();
 
   // Tecnologías
@@ -6956,8 +7170,7 @@ const initMobilePatches = () => {
 };
 
 /* ============================================================
-   FIREBASE INTEGRATION (v11.0.2 compat)
-   Colección: "Resenas" (R mayúscula, sin acento)
+   FIREBASE INTEGRATION
    ============================================================ */
 
 // Configuración de Firebase
@@ -6971,150 +7184,119 @@ const firebaseConfig = {
   measurementId: "G-R617C0VQJR"
 };
 
-// Variables globales de Firebase
+// Inicialización de Firebase (se cargará vía CDN)
 let firebaseReady = false;
 let firebaseApp = null;
 let firebaseDB = null;
+let firebaseAnalytics = null;
 
-console.log("📋 Inicializando sistema de reseñas Firebase...");
-
-/**
- * Inicializar Firebase con SDK compat
- * IMPORTANTE: Los scripts de Firebase se cargan ANTES del script principal
- */
 const initFirebaseApp = async () => {
-  console.log("🔄 Verificando disponibilidad de Firebase SDK...");
-  
-  // Esperar hasta 5 segundos a que Firebase esté disponible
-  let attempts = 0;
-  const maxAttempts = 50;
-  
-  while (typeof firebase === 'undefined' && attempts < maxAttempts) {
-    await new Promise(r => setTimeout(r, 100));
-    attempts++;
-  }
-
-  if (typeof firebase === 'undefined' || !window.firebase) {
-    console.error('❌ Firebase SDK no está disponible. Verifica que los scripts se carguen correctamente.');
-    return false;
-  }
-
-  try {
-    console.log("✅ Firebase SDK detectado");
-    
-    firebaseApp = firebase.initializeApp(firebaseConfig);
-    firebaseDB = firebase.firestore();
-    
-    console.log("🔥 Firebase cargado");
-    console.log("✨ Firestore inicializado");
-    
-    // Habilitar persistencia local (opcional, para modo offline)
+  // Si Firebase SDK está disponible globalmente
+  if (typeof firebase !== 'undefined' && window.firebase) {
     try {
-      await firebaseDB.enablePersistence();
-      console.log("💾 Persistencia offline habilitada");
-    } catch (err) {
-      if (err.code === 'failed-precondition') {
-        console.warn('⚠️ Múltiples tabs abiertos, persistencia deshabilitada');
-      } else if (err.code === 'unimplemented') {
-        console.warn('⚠️ Navegador no soporta persistencia offline');
-      }
-    }
+      firebaseApp = firebase.initializeApp(firebaseConfig);
+      firebaseDB = firebase.firestore();
+      firebaseAnalytics = firebase.analytics();
+      
+      // Habilitar persistencia local
+      firebaseDB.enablePersistence().catch(err => {
+        if (err.code === 'failed-precondition') {
+          console.warn('Múltiples tabs abiertos, persistencia deshabilitada');
+        } else if (err.code === 'unimplemented') {
+          console.warn('Navegador no soporta persistencia');
+        }
+      });
 
-    firebaseReady = true;
-    console.log('%c ✅ FIREBASE READY: true ', 'background:#22C55E;color:#fff;font-weight:bold;border-radius:4px;padding:4px 12px;');
-    return true;
-    
-  } catch (error) {
-    console.error('❌ Error al inicializar Firebase:', error);
-    return false;
+      firebaseReady = true;
+      console.log('%c 🔥 Firebase inicializado correctamente ', 'background:#FF6B35;color:#fff;font-weight:bold;border-radius:4px;padding:2px 8px;');
+      return true;
+    } catch (error) {
+      console.error('Error al inicializar Firebase:', error);
+      return false;
+    }
   }
+  return false;
 };
 
 /**
- * Guardar reseña en Firestore (colección "Resenas")
- * @param {object} resena - Datos de la reseña
+ * Enviar testimonios a Firebase Firestore
+ * @param {object} testimonial
  */
-const saveResenaToFirebase = async (resena) => {
+const sendTestimonialToFirebase = async (testimonial) => {
   if (!firebaseReady || !firebaseDB) {
-    console.error('❌ Firebase no está listo para guardar reseña');
-    throw new Error('Firebase no disponible');
+    console.error('Firebase no está listo');
+    return false;
   }
 
   try {
-    console.log("💾 Guardando reseña...");
-    
-    // Agregar metadata automática
-    resena.createdAt = firebase.firestore.Timestamp.now();
-    resena.updatedAt = firebase.firestore.Timestamp.now();
-    resena.approved = false; // Para moderación
-    resena.status = 'pending';
+    // Agregar timestamp automático
+    testimonial.createdAt = new Date().toISOString();
+    testimonial.status = 'pending'; // Para moderación
+    testimonial.approved = false;
 
-    // Guardar en colección "Resenas" (exactamente así, con R mayúscula)
-    const docRef = await firebaseDB.collection('Resenas').add(resena);
+    // Guardar en Firestore
+    const docRef = await firebaseDB.collection('testimonials').add(testimonial);
     
-    console.log('✅ Reseña guardada correctamente');
-    console.log('📍 Document ID:', docRef.id);
+    console.log('Testimonio guardado:', docRef.id);
 
-    return { id: docRef.id, ...resena };
-    
+    // Registrar evento en Analytics
+    if (firebaseAnalytics) {
+      firebase.analytics().logEvent('testimonial_submitted', {
+        service: testimonial.service,
+        rating: testimonial.rating
+      });
+    }
+
+    return true;
   } catch (error) {
-    console.error('❌ Error al guardar reseña:', error);
+    console.error('Error al guardar testimonio:', error);
     throw error;
   }
 };
 
 /**
- * Cargar reseñas aprobadas desde Firestore
+ * Cargar testimonios aprobados desde Firebase
  */
-const loadResenasFromFirebase = async () => {
+const loadTestimonialsFromFirebase = async () => {
   if (!firebaseReady || !firebaseDB) {
-    console.log('⚠️ Firebase no está listo para cargar reseñas');
+    console.log('Firebase no está listo para cargar testimonios');
     return [];
   }
 
   try {
-    console.log("📖 Cargando reseñas aprobadas desde Firestore...");
-    
     const snapshot = await firebaseDB
-      .collection('Resenas')
+      .collection('testimonials')
       .where('approved', '==', true)
       .orderBy('createdAt', 'desc')
       .limit(10)
       .get();
 
-    const resenas = [];
+    const testimonials = [];
     snapshot.forEach(doc => {
-      resenas.push({
+      testimonials.push({
         id: doc.id,
         ...doc.data()
       });
     });
 
-    console.log(`✅ ${resenas.length} reseña(s) cargada(s)`);
-    return resenas;
-    
+    return testimonials;
   } catch (error) {
-    console.error('❌ Error al cargar reseñas:', error);
+    console.error('Error al cargar testimonios:', error);
     return [];
   }
 };
 
-/**
- * Inicializar formulario de reseñas
- * ÚNICO sistema: Firebase + "Resenas"
- */
-const initResenasForm = () => {
-  console.log("📝 Formulario inicializado");
-  
+/* ============================================================
+   FORMULARIO DE FIREBASE TESTIMONIOS
+   ============================================================ */
+
+const initFirebaseTestimonialForm = () => {
   const form = document.getElementById('firebase-testimonial-form');
-  if (!form) {
-    console.warn('⚠️ Formulario #firebase-testimonial-form no encontrado');
-    return;
-  }
+  if (!form) return;
 
   const submitBtn = document.getElementById('firebase-submit');
-  const submitText = submitBtn?.querySelector('.submit-text');
-  const submitLoading = submitBtn?.querySelector('.submit-loading');
+  const submitText = document.querySelector('.submit-text', submitBtn);
+  const submitLoading = document.querySelector('.submit-loading', submitBtn);
   const messageField = document.getElementById('tst-message');
   const charCount = document.querySelector('.char-count');
 
@@ -7124,7 +7306,9 @@ const initResenasForm = () => {
     const updateCount = () => {
       const len = messageField.value.length;
       charCount.textContent = `${len} / ${maxChars}`;
-      charCount.style.color = len > maxChars * 0.9 ? 'var(--color-warning)' : 'var(--color-text-dim)';
+      charCount.style.color = len > maxChars * 0.9
+        ? 'var(--color-warning)'
+        : 'var(--color-text-dim)';
       if (len > maxChars) messageField.value = messageField.value.slice(0, maxChars);
     };
     messageField.addEventListener('input', updateCount);
@@ -7165,7 +7349,7 @@ const initResenasForm = () => {
   };
 
   // Validación en tiempo real
-  form.querySelectorAll('[name]').forEach(input => {
+  document.querySelectorAll('[name]', form).forEach(input => {
     input.addEventListener('blur', () => {
       const error = validateField(input.name, input.value);
       if (error) showError(input, error);
@@ -7180,12 +7364,13 @@ const initResenasForm = () => {
     });
   });
 
-  // Rating stars
-  const ratingInputs = form.querySelectorAll('input[name="rating"]');
+  // Manejo de rating stars
+  const ratingInputs = document.querySelectorAll('input[name="rating"]');
   ratingInputs.forEach(radio => {
     radio.addEventListener('change', () => {
       const error = document.querySelector('[data-rating-error]');
       if (error) error.textContent = '';
+      showSuccess(document.getElementById('rating-stars'));
     });
   });
 
@@ -7195,9 +7380,9 @@ const initResenasForm = () => {
     if (!toast) return;
 
     const icon = isSuccess ? '✅' : '❌';
-    const title = isSuccess ? '¡Gracias por tu reseña!' : 'Error al enviar';
+    const title = isSuccess ? '¡Gracias por tu testimonio!' : 'Error al enviar';
     const desc = isSuccess
-      ? 'Tu reseña será revisada y publicada pronto.'
+      ? 'Tu testimonio será revisado y publicado pronto.'
       : message;
 
     toast.innerHTML = `
@@ -7225,15 +7410,12 @@ const initResenasForm = () => {
   form.addEventListener('submit', async e => {
     e.preventDefault();
 
-    console.log("📤 Intentando enviar reseña...");
-
     if (!firebaseReady) {
-      console.error('❌ Firebase no disponible al enviar reseña');
       showToast('Firebase no está disponible. Intenta más tarde.', false);
       return;
     }
 
-    // Validar todos los campos
+    // Validar
     let isValid = true;
     const fields = {
       name: form.elements['name'].value,
@@ -7245,92 +7427,67 @@ const initResenasForm = () => {
     Object.entries(fields).forEach(([name, value]) => {
       const input = form.elements[name];
       const error = validateField(name, value);
-      if (error) { 
-        showError(input, error); 
-        isValid = false; 
-      } else {
-        showSuccess(input);
-      }
+      if (error) { showError(input, error); isValid = false; }
+      else showSuccess(input);
     });
 
-    if (!isValid) {
-      console.log('❌ Validación fallida');
-      return;
-    }
+    if (!isValid) return;
 
-    // Deshabilitar botón
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      if (submitText)    submitText.hidden = true;
-      if (submitLoading) submitLoading.hidden = false;
-    }
+    // Enviar
+    submitBtn.disabled = true;
+    if (submitText)    submitText.hidden = true;
+    if (submitLoading) submitLoading.hidden = false;
 
     try {
-      console.log("💾 Guardando reseña en Firestore...");
-      
-      const resena = {
+      await sendTestimonialToFirebase({
         name: fields.name.trim(),
         company: (form.elements['company']?.value || '').trim() || 'No especificada',
         rating: parseInt(fields.rating, 10),
         service: fields.service,
         message: fields.message.trim()
-      };
+      });
 
-      await saveResenaToFirebase(resena);
-
-      // Limpiar form
       form.reset();
-      form.querySelectorAll('[name]').forEach(input => {
+      document.querySelectorAll('[name]', form).forEach(input => {
         input.classList.remove('error', 'success');
         const errorEl = input.closest('.form-group')?.querySelector('.form-error');
         if (errorEl) errorEl.textContent = '';
       });
       if (charCount) charCount.textContent = '0 / 500';
 
-      console.log('✅ Reseña enviada y guardada correctamente');
       showToast();
-      
     } catch (error) {
-      console.error('❌ Error al enviar:', error);
-      showToast('Error al enviar tu reseña. Intenta nuevamente.', false);
-      
+      console.error('Error:', error);
+      showToast('Error al enviar tu testimonio. Intenta nuevamente.', false);
     } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        if (submitText)    submitText.hidden = false;
-        if (submitLoading) submitLoading.hidden = true;
-      }
+      submitBtn.disabled = false;
+      if (submitText)    submitText.hidden = false;
+      if (submitLoading) submitLoading.hidden = true;
     }
   });
 };
 
 /* ============================================================
-   Inicializar todo al cargar la página
+   Inicializar Firebase y formularios
    ============================================================ */
-const initFirebaseSystem = async () => {
-  console.log("🚀 Iniciando sistema de reseñas...");
-  
-  try {
-    const success = await initFirebaseApp();
-    
-    if (success && firebaseReady) {
-      console.log("✅ Sistema de reseñas listo");
-      initResenasForm();
-    } else {
-      console.error('❌ Firebase no se inicializó correctamente');
-    }
-  } catch (error) {
-    console.error('❌ Error al inicializar sistema:', error);
-  }
+const initFirebaseAll = async () => {
+  await initFirebaseApp();
+  initFirebaseTestimonialForm();
 };
 
-// Ejecutar cuando el DOM esté listo
 if (document.readyState !== 'loading') {
-  initFirebaseSystem();
+  initFirebaseAll();
 } else {
-  document.addEventListener('DOMContentLoaded', initFirebaseSystem);
+  document.addEventListener('DOMContentLoaded', initFirebaseAll);
 }
 
+
+</script>
+
+  <!-- Firebase SDK (v11.0.2) -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js"></script>
 
 </body>
 </html>

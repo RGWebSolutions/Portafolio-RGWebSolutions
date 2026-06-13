@@ -5301,7 +5301,7 @@ html {
               </div>
 
               <button type="submit" class="form-submit" id="firebase-submit">
-                <span class="submit-text">Compartir Testimonio</span>
+                <span class="submit-text">Compartir Reseña</span>
                 <span class="submit-loading" hidden>
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                     <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="2" stroke-dasharray="32" stroke-dashoffset="32" class="spin-circle"/>
@@ -6631,6 +6631,226 @@ const initProcessHighlight = () => {
 };
 
 /* ============================================================
+   26. FORMULARIO DE TESTIMONIO (Firebase)
+   ============================================================ */
+const initTestimonialForm = () => {
+  const form        = $('#firebase-testimonial-form');
+  if (!form) return;
+
+  const submitBtn     = $('#firebase-submit');
+  const submitText    = $('.submit-text', submitBtn);
+  const submitLoading = $('.submit-loading', submitBtn);
+
+  /* ---- Reglas de validación ---- */
+  const rules = {
+    name: {
+      required: true,
+      minLength: 2,
+      label: 'El nombre'
+    },
+    service: {
+      required: true,
+      label: 'El servicio'
+    },
+    rating: {
+      required: true,
+      label: 'La calificación'
+    },
+    message: {
+      required: true,
+      minLength: 30,
+      label: 'El testimonio'
+    }
+  };
+
+  const validateField = (name, value) => {
+    const rule = rules[name];
+    if (!rule) return null;
+    const trimmed = String(value).trim();
+    if (rule.required && !trimmed) return `${rule.label} es obligatorio.`;
+    if (rule.minLength && trimmed.length < rule.minLength) return `${rule.label} debe tener al menos ${rule.minLength} caracteres.`;
+    return null;
+  };
+
+  const showError = (input, message) => {
+    input.classList.add('error');
+    input.classList.remove('success');
+    const errorEl = input.closest('.form-group')?.querySelector('.form-error');
+    if (errorEl) errorEl.textContent = message;
+  };
+
+  const showSuccess = input => {
+    input.classList.remove('error');
+    input.classList.add('success');
+    const errorEl = input.closest('.form-group')?.querySelector('.form-error');
+    if (errorEl) errorEl.textContent = '';
+  };
+
+  /* ---- Validación en tiempo real ---- */
+  $$('[name]', form).forEach(input => {
+    on(input, 'blur', () => {
+      const error = validateField(input.name, input.value);
+      if (error) showError(input, error);
+      else if (input.value.trim()) showSuccess(input);
+    });
+    on(input, 'input', () => {
+      if (input.classList.contains('error')) {
+        const error = validateField(input.name, input.value);
+        if (!error) showSuccess(input);
+      }
+    });
+  });
+
+  /* ---- Contador de caracteres ---- */
+  const textarea = $('#tst-message');
+  if (textarea) {
+    const maxChars = 500;
+    on(textarea, 'input', () => {
+      const len = textarea.value.length;
+      const counter = textarea.closest('.form-group')?.querySelector('.char-count');
+      if (counter) counter.textContent = `${len} / ${maxChars}`;
+      if (len > maxChars) textarea.value = textarea.value.slice(0, maxChars);
+    });
+  }
+
+  /* ---- Toast de éxito ---- */
+  const showToast = () => {
+    const toast = $('#firebase-toast');
+    if (!toast) return;
+
+    toast.innerHTML = `
+      <span class="toast-icon">✅</span>
+      <div class="toast-body">
+        <strong>¡Reseña Compartida!</strong>
+        <p>Gracias por tu feedback. Pronto aparecerá en nuestro sitio.</p>
+      </div>
+      <div class="toast-progress"></div>
+    `;
+
+    toast.classList.remove('toast-hide');
+    toast.classList.add('toast-show');
+
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => {
+        toast.classList.remove('toast-show', 'toast-hide');
+        toast.innerHTML = '';
+      }, 400);
+    }, 5000);
+  };
+
+  /* ---- Toast de error ---- */
+  const showToastError = message => {
+    const toast = $('#firebase-toast');
+    if (!toast) return;
+
+    toast.innerHTML = `
+      <span class="toast-icon">❌</span>
+      <div class="toast-body">
+        <strong>Error al enviar</strong>
+        <p>${message}</p>
+      </div>
+      <div class="toast-progress"></div>
+    `;
+
+    toast.classList.remove('toast-hide');
+    toast.classList.add('toast-show');
+
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => {
+        toast.classList.remove('toast-show', 'toast-hide');
+        toast.innerHTML = '';
+      }, 400);
+    }, 5000);
+  };
+
+  /* ---- Envío con Formspree ---- */
+  on(form, 'submit', async e => {
+    e.preventDefault();
+
+    // Validar todos los campos requeridos
+    let isValid = true;
+    Object.keys(rules).forEach(name => {
+      const input = form.elements[name];
+      if (!input) return;
+      const error = validateField(name, input.value);
+      if (error) { showError(input, error); isValid = false; }
+      else showSuccess(input);
+    });
+
+    if (!isValid) {
+      const firstError = form.querySelector('.form-input.error');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.focus();
+      }
+      return;
+    }
+
+    submitBtn.disabled = true;
+    if (submitText)    submitText.hidden = true;
+    if (submitLoading) submitLoading.hidden = false;
+
+    try {
+      // Recopilar datos
+      const name    = form.elements['name']?.value.trim()     || '';
+      const company = form.elements['company']?.value.trim()  || 'No especificada';
+      const rating  = form.elements['rating']?.value          || '5';
+      const service = form.elements['service']?.value         || '';
+      const message = form.elements['message']?.value.trim()  || '';
+
+      /* ----------------------------------------------------------------
+         Envío automático vía Formspree
+         Endpoint: https://formspree.io/f/xbprzgyk (testimonios)
+         ---------------------------------------------------------------- */
+      const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xbprzgyk';
+
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          _subject: `Nueva reseña — ${name} | ⭐⭐⭐⭐⭐`,
+          nombre: name,
+          empresa: company,
+          'calificación': `${rating} estrellas`,
+          servicio: service,
+          reseña: message,
+          _template: 'table'
+        })
+      });
+
+      if (response.ok) {
+        // ✅ Enviado correctamente
+        form.reset();
+        $$('[name]', form).forEach(input => {
+          input.classList.remove('error', 'success');
+          const errorEl = input.closest('.form-group')?.querySelector('.form-error');
+          if (errorEl) errorEl.textContent = '';
+        });
+        showToast();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        console.error('Error al enviar reseña:', data);
+        showToastError('Error al enviar. Por favor intenta nuevamente.');
+        return;
+      }
+
+    } catch (err) {
+      console.error('Error de envío:', err.message);
+      showToastError('Error de conexión. Por favor verifica tu internet e intenta nuevamente.');
+    } finally {
+      submitBtn.disabled = false;
+      if (submitText)    submitText.hidden = false;
+      if (submitLoading) submitLoading.hidden = true;
+    }
+  });
+};
+
+/* ============================================================
    INICIALIZACIÓN PRINCIPAL
    ============================================================ */
 ready(() => {
@@ -6648,6 +6868,7 @@ ready(() => {
   initTestimonials();
   initFAQ();
   initContactForm();
+  initTestimonialForm();
   initFormEnhancements();
 
   // Tecnologías

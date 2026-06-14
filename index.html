@@ -27,10 +27,15 @@
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230F172A'/><text x='4' y='24' font-family='monospace' font-size='20' fill='%2338BDF8'>RG</text></svg>" />
 
-  <!-- Google Fonts -->
-  <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+  <!-- Google Fonts — preconnect + non-blocking link (faster than @import) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap">
 
+  <!-- Preload video -->
+  <link rel="preload" as="fetch" href="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4" crossorigin>
+
+  <style>
 /* ============================================================
    RGWebSolutions — styles.css
    Agencia de Diseño y Desarrollo Web Profesional
@@ -183,9 +188,22 @@ input, textarea, select {
   -webkit-backdrop-filter: blur(20px) !important;
 }
 
-.navbar.scrolled {
-  background: rgba(9, 18, 40, 0.8) !important;
+/* ============================================================
+   CONTENT-VISIBILITY — Skip rendering for off-screen sections
+   ============================================================ */
+.about,
+.services,
+.portfolio,
+.benefits,
+.testimonials,
+.faq,
+.cta-section,
+.contact {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
 }
+
+/* navbar.scrolled — see canonical rule below in section 6 */
 .section-label {
   display: inline-block;
   font-family: var(--font-display);
@@ -250,11 +268,11 @@ input, textarea, select {
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.95rem;
-  color: var(--color-bg);
+  color: var(--color-white);
   background: var(--color-accent);
   padding: 0.85rem 1.75rem;
   border-radius: var(--radius-md);
-  transition: all var(--dur-base) var(--ease-smooth);
+  transition: color var(--dur-base) var(--ease-smooth), background var(--dur-base) var(--ease-smooth), box-shadow var(--dur-base) var(--ease-smooth), transform var(--dur-base) var(--ease-smooth), border-color var(--dur-base) var(--ease-smooth);
   box-shadow: 0 4px 20px rgba(56,189,248,0.3);
 }
 
@@ -278,7 +296,7 @@ input, textarea, select {
   border: 1px solid var(--color-border);
   padding: 0.85rem 1.75rem;
   border-radius: var(--radius-md);
-  transition: all var(--dur-base) var(--ease-smooth);
+  transition: color var(--dur-base) var(--ease-smooth), background var(--dur-base) var(--ease-smooth), box-shadow var(--dur-base) var(--ease-smooth), transform var(--dur-base) var(--ease-smooth), border-color var(--dur-base) var(--ease-smooth);
   backdrop-filter: blur(8px);
 }
 
@@ -305,7 +323,7 @@ input, textarea, select {
   background: #25D366;
   padding: 0.85rem 1.75rem;
   border-radius: var(--radius-md);
-  transition: all var(--dur-base) var(--ease-smooth);
+  transition: color var(--dur-base) var(--ease-smooth), background var(--dur-base) var(--ease-smooth), box-shadow var(--dur-base) var(--ease-smooth), transform var(--dur-base) var(--ease-smooth), border-color var(--dur-base) var(--ease-smooth);
   box-shadow: 0 4px 20px rgba(37,211,102,0.3);
 }
 
@@ -434,7 +452,7 @@ input, textarea, select {
   padding: 0.5rem 1.1rem;
   border-radius: 9999px;
   flex-shrink: 0;
-  transition: all var(--dur-base) var(--ease-smooth);
+  transition: color var(--dur-base) var(--ease-smooth), background var(--dur-base) var(--ease-smooth), box-shadow var(--dur-base) var(--ease-smooth), transform var(--dur-base) var(--ease-smooth), border-color var(--dur-base) var(--ease-smooth);
   backdrop-filter: blur(8px);
 }
 
@@ -528,7 +546,7 @@ input, textarea, select {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1rem;
-  color: var(--color-bg);
+  color: var(--color-white);
   background: var(--color-accent);
   padding: 0.85rem 1.5rem;
   border-radius: var(--radius-md);
@@ -684,12 +702,6 @@ input, textarea, select {
 .cta-arrow {
   display: inline-block;
   transition: transform 0.2s ease;
-}
-
-@keyframes orb-float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%       { transform: translate(30px, -30px) scale(1.05); }
-  66%       { transform: translate(-20px, 20px) scale(0.97); }
 }
 
 /* Hero layout — legacy container hidden, replaced by new structure */
@@ -1353,6 +1365,7 @@ input, textarea, select {
   transition: border-color var(--dur-base), box-shadow var(--dur-base);
   position: relative;
   overflow: hidden;
+  will-change: transform;
 }
 
 .service-card:hover .service-card-inner {
@@ -1483,6 +1496,7 @@ input, textarea, select {
   border-right: 1px solid var(--color-border-2);
   border-bottom: 1px solid var(--color-border-2);
   transition: background var(--dur-base);
+  will-change: transform;
 }
 
 .tech-card:hover { background: rgba(56,189,248,0.03); }
@@ -1590,7 +1604,7 @@ input, textarea, select {
   padding: 0.5rem 1.2rem;
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all var(--dur-base) var(--ease-smooth);
+  transition: color var(--dur-base) var(--ease-smooth), background var(--dur-base) var(--ease-smooth), box-shadow var(--dur-base) var(--ease-smooth), transform var(--dur-base) var(--ease-smooth), border-color var(--dur-base) var(--ease-smooth);
 }
 
 .filter-btn:hover {
@@ -1599,11 +1613,11 @@ input, textarea, select {
 }
 
 .filter-btn.active {
-  background: var(--color-accent);
-  color: var(--color-bg);
-  border-color: var(--color-accent);
-  box-shadow: 0 4px 16px rgba(56,189,248,0.3);
-}
+   background: var(--color-accent);
+   color: var(--color-white);
+   border-color: var(--color-accent);
+   box-shadow: 0 4px 16px rgba(56,189,248,0.3);
+ }
 
 .portfolio-grid {
   display: grid;
@@ -1619,6 +1633,7 @@ input, textarea, select {
   transition: transform var(--dur-base) var(--ease-smooth),
               border-color var(--dur-base),
               box-shadow var(--dur-base);
+  will-change: transform;
 }
 
 .portfolio-card:hover {
@@ -1714,7 +1729,7 @@ input, textarea, select {
   font-family: var(--font-display);
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--color-bg);
+  color: var(--color-white);
   background: var(--color-accent);
   padding: 0.5rem 1.1rem;
   border-radius: var(--radius-md);
@@ -1887,6 +1902,7 @@ input, textarea, select {
   border: 1px solid var(--color-border-2);
   border-radius: var(--radius-lg);
   transition: border-color var(--dur-base), box-shadow var(--dur-base), transform var(--dur-base);
+  will-change: transform;
 }
 
 .benefit-item:hover {
@@ -2016,7 +2032,7 @@ input, textarea, select {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all var(--dur-base);
+  transition: color var(--dur-base), background var(--dur-base), box-shadow var(--dur-base), transform var(--dur-base), border-color var(--dur-base), opacity var(--dur-base);
 }
 
 .testimonial-prev:hover,
@@ -2037,7 +2053,7 @@ input, textarea, select {
   border-radius: 50%;
   background: var(--color-border);
   cursor: pointer;
-  transition: all var(--dur-base);
+  transition: color var(--dur-base), background var(--dur-base), box-shadow var(--dur-base), transform var(--dur-base), border-color var(--dur-base), opacity var(--dur-base);
   border: none;
   padding: 0;
 }
@@ -2090,7 +2106,7 @@ input, textarea, select {
   font-size: 2.2rem;
   color: var(--color-text-dim);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
   line-height: 1;
 }
 
@@ -2137,7 +2153,7 @@ input, textarea, select {
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   text-align: center;
-  transition: all var(--dur-base);
+  transition: color var(--dur-base), background var(--dur-base), box-shadow var(--dur-base), transform var(--dur-base), border-color var(--dur-base), opacity var(--dur-base);
 }
 
 .info-card:hover {
@@ -2512,13 +2528,13 @@ a.contact-detail-val:hover { color: var(--color-accent); }
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1rem;
-  color: var(--color-bg);
+  color: var(--color-white);
   background: var(--color-accent);
   padding: 1rem;
   border-radius: var(--radius-md);
   cursor: pointer;
   border: none;
-  transition: all var(--dur-base) var(--ease-smooth);
+  transition: color var(--dur-base) var(--ease-smooth), background var(--dur-base) var(--ease-smooth), box-shadow var(--dur-base) var(--ease-smooth), transform var(--dur-base) var(--ease-smooth), border-color var(--dur-base) var(--ease-smooth);
   box-shadow: 0 4px 20px rgba(56,189,248,0.3);
 }
 
@@ -2611,7 +2627,7 @@ a.contact-detail-val:hover { color: var(--color-accent); }
   align-items: center;
   justify-content: center;
   color: var(--color-text-dim);
-  transition: all var(--dur-base);
+  transition: color var(--dur-base), background var(--dur-base), box-shadow var(--dur-base), transform var(--dur-base), border-color var(--dur-base), opacity var(--dur-base);
 }
 
 .social-link:hover {
@@ -2677,7 +2693,7 @@ a.contact-detail-val:hover { color: var(--color-accent); }
   justify-content: center;
   box-shadow: 0 4px 24px rgba(37,211,102,0.45);
   z-index: 100;
-  transition: all var(--dur-base) var(--ease-spring);
+  transition: transform var(--dur-base) var(--ease-spring), box-shadow var(--dur-base) var(--ease-spring);
   animation: wa-bounce 3s ease-in-out infinite;
 }
 
@@ -2705,7 +2721,7 @@ a.contact-detail-val:hover { color: var(--color-accent); }
   pointer-events: none;
   opacity: 0;
   transform: translateX(4px);
-  transition: all var(--dur-base) var(--ease-smooth);
+  transition: color var(--dur-base) var(--ease-smooth), background var(--dur-base) var(--ease-smooth), box-shadow var(--dur-base) var(--ease-smooth), transform var(--dur-base) var(--ease-smooth), border-color var(--dur-base) var(--ease-smooth);
 }
 
 .whatsapp-tooltip::after {
@@ -2741,7 +2757,7 @@ a.contact-detail-val:hover { color: var(--color-accent); }
   opacity: 0;
   transform: translateY(12px);
   pointer-events: none;
-  transition: all var(--dur-base) var(--ease-smooth);
+  transition: color var(--dur-base) var(--ease-smooth), background var(--dur-base) var(--ease-smooth), box-shadow var(--dur-base) var(--ease-smooth), transform var(--dur-base) var(--ease-smooth), border-color var(--dur-base) var(--ease-smooth);
 }
 
 .back-to-top.visible {
@@ -3212,16 +3228,7 @@ html {
    B. VARIABLES POR BREAKPOINT
    ============================================================ */
 
-/* Desktop (base) */
-:root {
-  --nav-height: 70px;
-  --section-padding: 5rem 0;
-  --container-padding: 0 2.5rem;
-  --hero-title-size: clamp(2.4rem, 5vw, 3.8rem);
-  --section-title-size: clamp(1.8rem, 4vw, 2.8rem);
-  --card-padding: 1.75rem;
-  --grid-gap: 1.25rem;
-}
+/* Desktop (base) — variables ya definidas en :root principal arriba */
 
 /* ============================================================
    C. BREAKPOINT xl — Tablets grandes / laptops pequeñas
@@ -4231,7 +4238,7 @@ html {
     overflow: hidden;
     background: #000000;
   ">
-    <video autoplay loop muted playsinline preload="auto" style="
+    <video autoplay loop muted playsinline preload="auto" fetchpriority="high" style="
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -5767,46 +5774,27 @@ const initNavbar = () => {
   if (!navbar) return;
 
   const navLinks = $$('.nav-link[data-section]');
-
-  // Sections para intersection
   const sections = $$('section[id], div[id]');
+  const sectionMap = {};
+  sections.forEach(sec => { sectionMap[sec.id] = sec; });
 
-  /* ---- Scroll effect ---- */
+  /* ---- Single unified scroll handler (navbar + active link) ---- */
   const handleNavScroll = () => {
-    if (window.scrollY > 40) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
-    }
+    const sy = window.scrollY;
+    navbar.classList.toggle('scrolled', sy > 40);
+
+    const scrollPos = sy + window.innerHeight * 0.35;
+    let currentId = '';
+    sections.forEach(sec => {
+      if (sec.offsetTop <= scrollPos) currentId = sec.id;
+    });
+    navLinks.forEach(link => {
+      link.classList.toggle('active', link.dataset.section === currentId);
+    });
   };
 
   on(window, 'scroll', handleNavScroll, { passive: true });
-  handleNavScroll(); // Estado inicial
-
-  /* ---- Active section highlight ---- */
-  const sectionMap = {};
-  sections.forEach(sec => {
-    sectionMap[sec.id] = sec;
-  });
-
-  const updateActiveLink = () => {
-    const scrollPos = window.scrollY + window.innerHeight * 0.35;
-
-    let currentId = '';
-    sections.forEach(sec => {
-      if (sec.offsetTop <= scrollPos) {
-        currentId = sec.id;
-      }
-    });
-
-    navLinks.forEach(link => {
-      const section = link.dataset.section;
-      link.classList.toggle('active', section === currentId);
-    });
-  };
-
-  on(window, 'scroll', updateActiveLink, { passive: true });
-  updateActiveLink();
+  handleNavScroll();
 };
 
 /* ============================================================
@@ -6338,14 +6326,10 @@ const initContactForm = () => {
 const initBackToTop = () => {
   const btn = $('#back-to-top');
   if (!btn) return;
-
-  on(window, 'scroll', () => {
-    btn.classList.toggle('visible', window.scrollY > 400);
-  }, { passive: true });
-
   on(btn, 'click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+  // Visibility handled by unified scroll listener below
 };
 
 /* ============================================================
@@ -6381,29 +6365,41 @@ const initLazyLoad = () => {
 };
 
 /* ============================================================
-   13. EFECTOS HOVER AVANZADOS EN TARJETAS
+   13. EFECTOS HOVER AVANZADOS EN TARJETAS (rAF-throttled)
    ============================================================ */
 const initCardHover = () => {
+  // No 3D tilt on touch devices — saves unnecessary listener registrations
+  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
+
   const cards = $$(
     '.service-card-inner, .portfolio-card, .benefit-item, .tech-card'
   );
 
   cards.forEach(card => {
+    let rafId = null;
+    let lastE = null;
     on(card, 'mousemove', e => {
-      const rect   = card.getBoundingClientRect();
-      const x      = e.clientX - rect.left;
-      const y      = e.clientY - rect.top;
-      const cx     = rect.width  / 2;
-      const cy     = rect.height / 2;
-      const rotateX = ((y - cy) / cy) * -5;
-      const rotateY = ((x - cx) / cx) *  5;
-
-      card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(4px)`;
+      lastE = e;
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (!lastE) return;
+        const rect    = card.getBoundingClientRect();
+        const x       = lastE.clientX - rect.left;
+        const y       = lastE.clientY - rect.top;
+        const cx      = rect.width  / 2;
+        const cy      = rect.height / 2;
+        const rotateX = ((y - cy) / cy) * -5;
+        const rotateY = ((x - cx) / cx) *  5;
+        card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(4px)`;
+      });
     });
 
     on(card, 'mouseleave', () => {
-      card.style.transform = '';
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      lastE = null;
       card.style.transition = 'transform 0.5s cubic-bezier(0.4,0,0.2,1)';
+      card.style.transform = '';
       setTimeout(() => { card.style.transition = ''; }, 500);
     });
   });
@@ -6450,93 +6446,23 @@ const initTechBars = () => {
    16. INDICADOR DE PROGRESO DE SCROLL (sutil en navbar)
    ============================================================ */
 const initScrollProgress = () => {
-  // Crear barra de progreso
   const bar = document.createElement('div');
   bar.id = 'scroll-progress';
-  bar.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 2px;
-    width: 0%;
-    background: linear-gradient(90deg, #38BDF8, #22C55E);
-    z-index: 2000;
-    transition: width 0.1s linear;
-    pointer-events: none;
-  `;
+  bar.style.cssText = `position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,#38BDF8,#22C55E);z-index:2000;transition:width 0.1s linear;pointer-events:none;`;
   document.body.appendChild(bar);
-
-  on(window, 'scroll', () => {
-    const scrollTop    = window.scrollY;
-    const docHeight    = document.documentElement.scrollHeight - window.innerHeight;
-    const progress     = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-    bar.style.width    = `${Math.min(progress, 100)}%`;
-  }, { passive: true });
+  // Updated by unified scroll listener — exposed on window for the master handler
+  window._scrollProgressBar = bar;
 };
 
 /* ============================================================
-   17. HERO PARALLAX (sutil)
+   17. HERO PARALLAX — desactivado (hero-orb removidos del DOM activo)
    ============================================================ */
-const initHeroParallax = () => {
-  const orbs = $$('.hero-orb');
-  if (!orbs.length) return;
-
-  on(window, 'scroll', () => {
-    const scrolled = window.scrollY;
-    if (scrolled > window.innerHeight) return;
-
-    orbs.forEach((orb, i) => {
-      const speed = 0.05 + i * 0.02;
-      orb.style.transform = `translateY(${scrolled * speed}px)`;
-    });
-  }, { passive: true });
-};
+const initHeroParallax = () => { /* no-op: .hero-orb no existe en esta versión */ };
 
 /* ============================================================
-   18. TYPING EFFECT EN HERO (sutil)
+   18. TYPING EFFECT — desactivado (hero-badge no visible en esta versión)
    ============================================================ */
-const initHeroTyping = () => {
-  const badge = $('.hero-badge span:last-child');
-  if (!badge) return;
-
-  const texts = [
-    'Agencia Digital · México',
-    'Diseño Web Profesional',
-    'Desarrollo a Medida'
-  ];
-
-  let textIndex = 0;
-  let charIndex = 0;
-  let isDeleting = false;
-  let typingTimer = null;
-
-  const type = () => {
-    const current = texts[textIndex];
-
-    if (!isDeleting) {
-      badge.textContent = current.substring(0, charIndex + 1);
-      charIndex++;
-      if (charIndex === current.length) {
-        isDeleting = true;
-        typingTimer = setTimeout(type, 2200);
-        return;
-      }
-    } else {
-      badge.textContent = current.substring(0, charIndex - 1);
-      charIndex--;
-      if (charIndex === 0) {
-        isDeleting = false;
-        textIndex  = (textIndex + 1) % texts.length;
-      }
-    }
-
-    const speed = isDeleting ? 60 : 90;
-    typingTimer = setTimeout(type, speed);
-  };
-
-  // Iniciar después de la animación de entrada
-  setTimeout(type, 1500);
-};
+const initHeroTyping = () => { /* no-op: .hero-badge está oculto */ };
 
 /* ============================================================
    19. WHATSAPP BTN — Aparecer con delay
@@ -6987,6 +6913,29 @@ ready(() => {
   initHeroParallax();
   initHeroTyping();
   initWhatsApp();
+
+  /* ---- UNIFIED MASTER SCROLL (rAF-throttled) ----
+     Handles: back-to-top visibility + scroll progress bar
+     Replaces the separate scroll listeners those functions used to add.
+  ---- */
+  (() => {
+    const btt = $('#back-to-top');
+    let rafPending = false;
+    on(window, 'scroll', () => {
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(() => {
+        rafPending = false;
+        const sy = window.scrollY;
+        if (btt) btt.classList.toggle('visible', sy > 400);
+        const bar = window._scrollProgressBar;
+        if (bar) {
+          const dh = document.documentElement.scrollHeight - window.innerHeight;
+          bar.style.width = dh > 0 ? `${Math.min((sy / dh) * 100, 100)}%` : '0%';
+        }
+      });
+    }, { passive: true });
+  })();
   initMobileMenuDisplay();
   initStatsStagger();
   initProcessHighlight();
